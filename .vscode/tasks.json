@@ -13,6 +13,7 @@
             "group": "none",
             "presentation": {
                 "reveal": "silent",
+                "clear": true,
                 "panel": "new"
             }
         }

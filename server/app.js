@@ -1,14 +1,15 @@
 require('dotenv').config();
 
-const express = require('express');
-const app = express();
+const rating = require('./src/rating');
+let testPlayer = new rating.Player(0, 'test', 'me');
 
-const port = process.env.PORT;
+testPlayer.addMatch(1, 1, 2);
+testPlayer.addMatch(8, -4, 6);
+testPlayer.addMatch(10, -9, 6);
 
-app.get('/', (req, res) => {
-    res.send('Hello World');
-});
+const ratingList = testPlayer.ratingHistory();
+console.log(ratingList.length);
 
-app.listen(port, () => {
-    console.log('Example app listening at http://localhost:' + port);
-});
+for(let i = 0; i < ratingList.length; i++){
+    console.log(i + ": " + ratingList[i]);
+}

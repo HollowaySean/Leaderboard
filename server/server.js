@@ -44,8 +44,30 @@ for(let i = 0; i < rankedList.length; i++){
 */
 
 // Server test
+/*
 app.get('/', (req, res) => {
     res.send('Hello world!!!!11!');
 });
 
 app.listen(process.env.PORT, () => console.log('Listening on port ' + process.env.PORT));
+/*
+*/
+
+// MySQL test
+var mysql = require('mysql');
+var connection = mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME
+});
+
+connection.connect();
+
+connection.query('SELECT * FROM `group_members`', 
+    function (err, rows, fields) {
+        if(err) throw err;
+        console.log(rows);
+});
+
+connection.end();

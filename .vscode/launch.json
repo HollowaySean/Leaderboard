@@ -5,6 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "command": "npm run dev",
+            "name": "Server dev",
+            "request": "launch",
+            "type": "node-terminal"
+        },
+        {
             "command": "npm start",
             "name": "Server",
             "request": "launch",
@@ -24,6 +30,13 @@
             "name": "Full-stack",
             "configurations": [
                 "Server",
+                "Client"
+            ]
+        },
+        {
+            "name": "Full-stack dev",
+            "configurations": [
+                "Server dev",
                 "Client"
             ]
         }

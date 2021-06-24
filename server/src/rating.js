@@ -28,9 +28,9 @@ class Player {
     // Class constructor
     constructor(id, name, owner){
 
-        this.id     = id;
-        this.name   = name;
-        this.owner  = owner;
+        this.id         = id;
+        this.name       = name;
+        this.owner      = owner;
 
         this.matchHistory = [];
         this.matchHistory.push(Match.defaultMatch());
@@ -77,13 +77,27 @@ class Player {
     }
 }
 
-// Class holding a player's current rating (Delete?)
-class Standing {
+// Class holding entire group of players
+class Group {
 
     // Class constructor
-    constructor(player, rating) {
-        this.player = player;
-        this.rating = rating;
+    constructor(playerList=[]){
+        this.playerList = playerList;
+    }
+
+    // Add player or players to list
+    addPlayers(newPlayer) {
+        this.playerList.push(newPlayer);
+    }
+
+    // Sort list of players by rank
+    sortPlayers() {
+        return this.playerList.sort(this.comparePlayers)
+    }
+
+    // Compare function for list sorting
+    comparePlayers(a, b) {
+        return (a.rating > b.rating) ? -1 : 1;
     }
 }
 
@@ -105,10 +119,6 @@ class MatchResultSingle {
 
         let newMu = this.muInit + Math.sqrt(this.muStepSq) * (this.winner ? 1 : -1);
         let newSigma = this.sigmaStep * Math.sqrt(this.sigmaInit**2 + gamma**2);
-        
-        // console.log("Is winner? " + this.winner);
-        // console.log("Mu Before: " + this.muInit + "\nAfter: " + newMu + "\nStep: " + this.muStepSq);
-        // console.log("Sig Before: " + this.sigmaInit + ", After: " + newSigma + "\nStep: " + this.sigmaStep);
         this.player.addMatch(matchNumber, newMu, newSigma);
     }
 }
@@ -153,13 +163,13 @@ class MatchResults {
                     let isDraw = opponent.winner;
 
                     // Update mean and variance
-                    player.muStepSq       += muWinnerDelta(player, opponent, isDraw) ** 2;
+                    player.muStepSq     += muWinnerDelta(player, opponent, isDraw) ** 2;
                     player.sigmaStep    *= sigmaWinnerCoefficient(player, opponent, isDraw);
 
                 } else if(opponent.winner) {
 
                     // Update mean and variance
-                    player.muStepSq       += muLoserDelta(player, opponent) ** 2;
+                    player.muStepSq     += muLoserDelta(player, opponent) ** 2;
                     player.sigmaStep    *= sigmaLoserCoefficient(player, opponent);
                 }
             });
@@ -289,3 +299,4 @@ function wFunction(t, eta, isDraw) {
 exports.Player = Player;
 exports.MatchResults = MatchResults;
 exports.MatchResultSingle = MatchResultSingle;
+exports.Group = Group;

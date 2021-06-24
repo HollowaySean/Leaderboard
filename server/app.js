@@ -1,5 +1,10 @@
 require('dotenv').config();
 
+const express = require('express');
+
+const app = express();
+/*
+// Rating system test
 const rating = require('./src/rating');
 
 // Create test players
@@ -37,3 +42,10 @@ for(let i = 0; i < rankedList.length; i++){
 }
 /*
 */
+
+// Server test
+app.get('/', (req, res) => {
+    res.send('Hello world!!!!11!');
+});
+
+app.listen(process.env.PORT, () => console.log('Listening on port ' + process.env.PORT));

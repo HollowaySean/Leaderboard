@@ -33,14 +33,14 @@ function usersInGroup(groupID, callback) {
 function decksInGroup(groupID, callback) {
 
     // MySQL query
-    db.query('SELECT deck FROM `group_members` WHERE groupID = ' + mysql.escape(groupID) + ';', 
+    db.query('SELECT deckID FROM `group_members` WHERE groupID = ' + mysql.escape(groupID) + ';', 
         function (err, results) {
             if(err) throw err;
 
             // Pack array of data
             let decks = [];
             for(let i = 0; i < results.length; i++){
-                decks.push(results[i].deck);
+                decks.push(results[i].deckID);
             }
 
             // Send callback after completion
@@ -53,14 +53,14 @@ function decksInGroup(groupID, callback) {
 function decksInUser(userID, callback) {
 
     // MySQL query
-    db.query('SELECT deck FROM `group_members` WHERE userID = ' + mysql.escape(userID) + ';', 
+    db.query('SELECT deckID FROM `group_members` WHERE userID = ' + mysql.escape(userID) + ';', 
         function (err, results) {
             if(err) throw err;
 
             // Pack array of data
             let decks = [];
             for(let i = 0; i < results.length; i++){
-                decks.push(results[i].deck);
+                decks.push(results[i].deckID);
             }
 
             // Send callback after completion
@@ -117,9 +117,24 @@ function groupWithID(groupID, callback) {
     );
 }
 
+// Convert deckID to deck name
+function deckWithID(deckID, callback) {
+
+    // MySQL query
+    db.query('SELECT deckName FROM `group_members` WHERE deckID = ' + mysql.escape(deckID) + ' LIMIT 1;', 
+        function (err, results) {
+            if(err) throw err;
+
+            // Send callback after completion
+            callback(results[0].deckName);
+        }
+    );
+}
+
 exports.usersInGroup = usersInGroup;
 exports.decksInGroup = decksInGroup;
+exports.decksInUser = decksInUser;
 exports.groupsWithUser = groupsWithUser;
 exports.userWithID = userWithID;
 exports.groupWithID = groupWithID;
-exports.decksInUser = decksInUser;
+exports.deckWithID = deckWithID;

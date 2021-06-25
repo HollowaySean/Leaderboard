@@ -12,3 +12,4 @@ ratingDB.decksInUser(0, (results) => console.log(results));
 ratingDB.groupsWithUser('sean', (results) => console.log(results));
 ratingDB.userWithID(1, (results) => console.log(results));
 ratingDB.groupWithID(1, (results) => console.log(results));
+ratingDB.deckWithID(0, (results) => console.log(results));

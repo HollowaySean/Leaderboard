@@ -26,11 +26,7 @@ class Match {
 class Player {
 
     // Class constructor
-    constructor(id, name, owner){
-
-        this.id         = id;
-        this.name       = name;
-        this.owner      = owner;
+    constructor(){
 
         this.matchHistory = [];
         this.matchHistory.push(Match.defaultMatch());

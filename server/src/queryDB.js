@@ -5,6 +5,7 @@
 const minPlayers = 2;
 const maxPlayers = 6;
 
+const { match } = require('assert');
 // Connect to database
 const mysql = require('mysql');
 const db = mysql.createConnection({
@@ -142,15 +143,21 @@ function deckWithID(deckID, callback) {
 
 // Class for single deck leaderboard information
 class DeckInfo {
-    constructor(userID, deckID, rating) {
+
+    // Class constructor
+    constructor(userID, deckID, mu, sigma) {
         this.userID = userID;
         this.deckID = deckID;
-        this.rating = rating;
+        this.mu     = mu;
+        this.sigma  = sigma;
     }
+
+    // Rating property
+    get rating() { return this.mu - 3*this.sigma; }
 }
 
 // Class for leaderboard information
-class Leaderboard {
+class GroupDeckInfo {
 
     // Class constructor
     constructor(deckList) {
@@ -188,16 +195,90 @@ function getLeaderboard(groupID, callback) {
             if(err) throw err;
 
             // Pack class of leaderboard data
-            let leaderboard = new Leaderboard();
+            let leaderboard = new GroupDeckInfo();
             for(let i = 0; i < results.length; i++){
                 leaderboard.addDeck(new DeckInfo(
                     results[i].userID, 
                     results[i].deckID, 
-                    results[i].rating)
+                    results[i].mu,
+                    results[i].sigma)
                 );
             }
             // Send callback after completion
             callback(leaderboard);
+        });
+}
+
+// Class for single match information
+class MatchInfo {
+
+    // Class constructor
+    constructor(matchNum, deckID, newRating) {
+        this.matchNum   = matchNum;
+        this.deckID     = deckID;
+        this.rating     = newRating;
+    }
+}
+
+class GroupMatchInfo {
+
+    // Class constructor
+    constructor(matchList) {
+        if(matchList != null) {
+            this.addMatch(matchList);
+        }
+        this.deckIDList = [];
+    }
+
+    // Add matchinfo to match list
+    addMatch(newMatch) {
+        if(this.matchList == null) {
+            this.matchList = [newMatch];
+        }else{
+            this.matchList.push(newMatch);
+        }
+    }
+
+    // Generate 2D array of rating histories
+    //TODO
+}
+
+// Get match history
+function getHistory(groupID, callback) {
+
+    // MySQL query
+    db.query('SELECT * FROM `groupRecords` WHERE groupID = ' + groupID + '; ', 
+        function (err, results) {
+            if(err) throw err;
+
+            // Pack class of leaderboard data
+            let history = new GroupMatchInfo();
+            let deckIDList = [];
+            for(let i = 0; i < results.length; i++){
+                history.addMatch(new MatchInfo(
+                    results[i].matchNum, 
+                    results[i].deckID, 
+                    results[i].newRating)
+                );
+                deckIDList.push(results[i].deckID);
+            }
+            history.deckIDList = [...new Set(deckIDList)];
+
+            // Send callback after completion
+            callback(history);
+        });
+}
+
+// Get match number
+function getLastMatchNum(groupID, callback) {
+
+    // MySQL query
+    db.query('SELECT MAX(matchNum) AS maxNum FROM `groupMatches` WHERE groupID = ' + mysql.escape(groupID) + ';', 
+        function (err, results) {
+            if(err) throw err;
+
+            // Send callback after completion
+            callback(results[0].maxNum);
         });
 }
 
@@ -224,8 +305,8 @@ function addUserToGroup(groupID, userID) {
 }
 
 // Add deck to group
-function addUserToGroup(deckID, userID) {
-    db.query('INSERT IGNORE INTO groupDecks (deckID, userID) VALUES (' + mysql.escape(deckID) + ', ' + mysql.escape(userID) + ');');
+function addDeckToGroup(groupID, userID, deckID) {
+    db.query('INSERT IGNORE INTO groupDecks (groupID, userID, deckID) VALUES (' + mysql.escape(groupID) + ', ' + mysql.escape(userID) + ', ' + mysql.escape(deckID) + ');');
 }
 
 // Class for match result
@@ -271,6 +352,13 @@ function createRecord(groupID, matchNum, deckID, newRating) {
     db.query('INSERT IGNORE INTO groupRecords (groupID, matchNum, deckID, newRating) VALUES (' + mysql.escape(groupID) + ', ' + mysql.escape(matchNum) + ', ' + mysql.escape(deckID) + ', ' + mysql.escape(newRating) + ');');
 }
 
+//// UPDATE FUNCTIONS ////
+
+// Change elo rating values of deck
+function updateDeck(groupID, deckID, newMu, newSigma) {
+    db.query('UPDATE groupDecks SET mu = ' + mysql.escape(newMu) + ', sigma = ' + mysql.escape(newSigma) + ' WHERE deckID = ' + mysql.escape(deckID) + ' AND groupID = ' + mysql.escape(groupID) + ';')
+}
+
 
 // Exports
 module.exports = {
@@ -278,14 +366,21 @@ module.exports = {
     decksInGroup    : decksInGroup,
     decksInUser     : decksInUser,
     groupsWithUser  : groupsWithUser,
-    getLeaderboard  : getLeaderboard,
     userWithID      : userWithID,
     groupWithID     : groupWithID,
     deckWithID      : deckWithID,
+    getLeaderboard  : getLeaderboard,
+    getHistory      : getHistory,
+    getLastMatchNum : getLastMatchNum,
+    DeckInfo        : DeckInfo,
+    GroupDeckInfo   : GroupDeckInfo,
     createUser      : createUser,
     createGroup     : createGroup,
     createDeck      : createDeck,
+    addUserToGroup  : addUserToGroup,
+    addDeckToGroup  : addDeckToGroup,
     Result          : Result,
     createMatch     : createMatch,
-    createRecord    : createRecord
+    createRecord    : createRecord,
+    updateDeck      : updateDeck
 }

@@ -3,98 +3,17 @@ const beta      = 25 / 6;
 const gamma     = beta / 100;
 const epsilon   = 0.0522218;
 
-// Class to represent single match record
-class Match {
-    
-    // Class constructor
-    constructor(matchNumber, newMu, newSigma) {
-        this.matchNumber    = matchNumber;
-        this.mu             = newMu;
-        this.sigma          = newSigma;
-    }
-
-    // Default class constructor
-    static defaultMatch() {
-        return new Match(0, 25, 25/3);
-    }
-
-    // Elo skill rating
-    get rating() { return this.mu - 3*this.sigma; }
-}
-
-// Class to represent single player's match history
+// Class to represent single player
 class Player {
 
     // Class constructor
-    constructor(){
-
-        this.matchHistory = [];
-        this.matchHistory.push(Match.defaultMatch());
-    }
-
-    // Get most recent match
-    get currentMatch() { return this.matchHistory[this.matchHistory.length - 1]; }
-
-    // Add new match to history
-    addMatch(matchNumber, newMu, newSigma) {
-
-        // Ignore if match added out of order
-        if(matchNumber > this.currentMatch.matchNumber){
-            this.matchHistory.push(new Match(matchNumber, newMu, newSigma));
-        }else{
-            throw new Error("Match added after most recent match! Examine code for fault.");
-        }
+    constructor(sigma, mu){
+        this.sigma      = sigma;
+        this.mu         = mu;
     }
 
     // Elo skill curve properties
-    get mu()        { return this.currentMatch.mu; }
-    get sigma()     { return this.currentMatch.sigma; }
     get rating()    { return this.mu - 3 * this.sigma; }
-
-    // Return rating history over all matches
-    ratingHistory(finalMatch = this.currentMatch.matchNumber) {
-
-        // Initialize variables
-        const history = [];
-        let index = 0;
-        let currentRating = 0;
-
-        // Add rating for each match number
-        for(let match = 0; match <= finalMatch; match++){
-
-            // Check if match history includes this match number
-            if(index > this.matchHistory.length || this.matchHistory[index].matchNumber == match){
-                currentRating = this.matchHistory[index].rating;
-                index++;
-            }
-            history.push(currentRating);
-        }
-        return history;
-    }
-}
-
-// Class holding entire group of players
-class Group {
-
-    // Class constructor
-    constructor(playerList=[]){
-        this.playerList = playerList;
-    }
-
-    // Add player or players to list
-    addPlayers(newPlayer) {
-        this.playerList.push(newPlayer);
-    }
-
-    // Sort list of players by rank
-    sortPlayers() {
-        return this.playerList.sort(this.comparePlayers)
-    }
-
-    // Compare function for list sorting
-    comparePlayers(a, b) {
-        return (a.rating > b.rating) ? -1 : 1;
-    }
 }
 
 // Class holding a player's result from a match
@@ -111,11 +30,10 @@ class MatchResultSingle {
     }
 
     // Function to update player histories
-    updateHistory(matchNumber) {
+    updatePlayer() {
 
-        let newMu = this.muInit + Math.sqrt(this.muStepSq) * (this.winner ? 1 : -1);
-        let newSigma = this.sigmaStep * Math.sqrt(this.sigmaInit**2 + gamma**2);
-        this.player.addMatch(matchNumber, newMu, newSigma);
+        this.player.mu = this.muInit + Math.sqrt(this.muStepSq) * (this.winner ? 1 : -1);
+        this.player.sigma = this.sigmaStep * Math.sqrt(this.sigmaInit**2 + gamma**2);
     }
 }
 
@@ -171,7 +89,7 @@ class MatchResults {
             });
 
             // Update each player's ratings
-            player.updateHistory(matchNumber);    
+            player.updatePlayer(matchNumber);    
         });
     }
 }
@@ -295,4 +213,3 @@ function wFunction(t, eta, isDraw) {
 exports.Player = Player;
 exports.MatchResults = MatchResults;
 exports.MatchResultSingle = MatchResultSingle;
-exports.Group = Group;

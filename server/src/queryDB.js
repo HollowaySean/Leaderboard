@@ -145,11 +145,13 @@ function deckWithID(deckID, callback) {
 class DeckInfo {
 
     // Class constructor
-    constructor(userID, deckID, mu, sigma) {
-        this.userID = userID;
-        this.deckID = deckID;
-        this.mu     = mu;
-        this.sigma  = sigma;
+    constructor(userID, groupID, deckID, mu, sigma) {
+        this.userID     = userID;
+        this.groupID    = groupID;
+        this.deckID     = deckID;
+        this.mu         = mu;
+        this.sigma      = sigma;
+        this.isWinner   = false; // Used for extension to Elo module
     }
 
     // Rating property
@@ -199,6 +201,7 @@ function getLeaderboard(groupID, callback) {
             for(let i = 0; i < results.length; i++){
                 leaderboard.addDeck(new DeckInfo(
                     results[i].userID, 
+                    groupID,
                     results[i].deckID, 
                     results[i].mu,
                     results[i].sigma)
@@ -206,6 +209,27 @@ function getLeaderboard(groupID, callback) {
             }
             // Send callback after completion
             callback(leaderboard);
+        });
+}
+
+// Get single deck information
+function getDeckInfo(groupID, deckID, callback) {
+
+    // MySQL query
+    db.query('SELECT * FROM `groupDecks` WHERE groupID = ' + groupID + ', deckID = ' + deckID + ' LIMIT 1;', 
+        function (err, results) {
+            if(err) throw err;
+
+            // Pack class of leaderboard data
+            let deck = new DeckInfo(
+                results[0].userID, 
+                groupID,
+                deckID, 
+                results[0].mu,
+                results[0].sigma
+            );
+            // Send callback after completion
+            callback(deck);
         });
 }
 
@@ -317,6 +341,11 @@ class Result {
         this.isWinner   = isWinner;
     };
 
+    static fromDeckInfo(deckInfo) {
+        this.deckID     = deckInfo.deckID;
+        this.isWinner   = deckInfo.isWinner;
+    }
+
     static get NullResult() {
         return new Result('NULL', 'NULL');
     }
@@ -359,28 +388,52 @@ function updateDeck(groupID, deckID, newMu, newSigma) {
     db.query('UPDATE groupDecks SET mu = ' + mysql.escape(newMu) + ', sigma = ' + mysql.escape(newSigma) + ' WHERE deckID = ' + mysql.escape(deckID) + ' AND groupID = ' + mysql.escape(groupID) + ';')
 }
 
+//// ELO SYSTEM HELPER FUNCTIONS ////
+// These functions bridge the gap between my old Elo library and the new database system
+const elo = require('./elo');
+
+// Perform a match using deckInfo list 
+function matchUpdateDecks(deckInfoList, matchNumber) {
+
+    // Convert deck info list into match results structure from elo library
+    let matchResults = new elo.MatchResults();
+    for(let i = 0; i < deckInfoList.length; i++) {
+        matchResults.addResult(new elo.MatchResultSingle(deckInfoList[i], deckInfoList[i].isWinner));
+    }
+
+    // Update deck info list using elo library
+    matchResults.newMatch(matchNumber);
+
+    // Return deck info list in original format
+    return deckInfoList;
+}
+
 
 // Exports
 module.exports = {
-    usersInGroup    : usersInGroup,
-    decksInGroup    : decksInGroup,
-    decksInUser     : decksInUser,
-    groupsWithUser  : groupsWithUser,
-    userWithID      : userWithID,
-    groupWithID     : groupWithID,
-    deckWithID      : deckWithID,
-    getLeaderboard  : getLeaderboard,
-    getHistory      : getHistory,
-    getLastMatchNum : getLastMatchNum,
-    DeckInfo        : DeckInfo,
-    GroupDeckInfo   : GroupDeckInfo,
-    createUser      : createUser,
-    createGroup     : createGroup,
-    createDeck      : createDeck,
-    addUserToGroup  : addUserToGroup,
-    addDeckToGroup  : addDeckToGroup,
-    Result          : Result,
-    createMatch     : createMatch,
-    createRecord    : createRecord,
-    updateDeck      : updateDeck
+    usersInGroup     : usersInGroup,
+    decksInGroup     : decksInGroup,
+    decksInUser      : decksInUser,
+    groupsWithUser   : groupsWithUser,
+    userWithID       : userWithID,
+    groupWithID      : groupWithID,
+    deckWithID       : deckWithID,
+    DeckInfo         : DeckInfo,
+    GroupDeckInfo    : GroupDeckInfo,
+    getLeaderboard   : getLeaderboard,
+    getDeckInfo      : getDeckInfo,
+    MatchInfo        : MatchInfo,
+    GroupMatchInfo   : GroupMatchInfo,
+    getHistory       : getHistory,
+    getLastMatchNum  : getLastMatchNum,
+    createUser       : createUser,
+    createGroup      : createGroup,
+    createDeck       : createDeck,
+    addUserToGroup   : addUserToGroup,
+    addDeckToGroup   : addDeckToGroup,
+    Result           : Result,
+    createMatch      : createMatch,
+    createRecord     : createRecord,
+    updateDeck       : updateDeck,
+    matchUpdateDecks : matchUpdateDecks
 }

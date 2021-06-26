@@ -5,13 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "command": "npm run dev",
+            "command": "npm --prefix ./server run dev",
             "name": "Server dev",
             "request": "launch",
             "type": "node-terminal"
         },
         {
-            "command": "npm start",
+            "command": "npm --prefix ./server start",
             "name": "Server",
             "request": "launch",
             "type": "node-terminal"

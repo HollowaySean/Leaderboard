@@ -19,6 +19,25 @@ db.connect();
 
 //// SELECT FUNCTIONS ////
 
+// Get user by name
+function getUserByName(userName, callback) {
+
+    // MySQL query
+    db.query('SELECT * FROM `users` WHERE userName = ' + mysql.escape(userName) + ' LIMIT 1;', 
+        function (err, results) {
+            if(err) throw err;
+
+            // NOTE: This function was written after the point when I realized
+            //      that I should have embraced JSON from the beginning, so does 
+            //      not match the other functions in format.
+
+            // Send callback after completion
+            callback(results);
+        }
+    );
+}
+
+
 // Get all users in group
 function usersInGroup(groupID, callback) {
 
@@ -411,6 +430,7 @@ function matchUpdateDecks(deckInfoList, matchNumber) {
 
 // Exports
 module.exports = {
+    getUserByName    : getUserByName,
     usersInGroup     : usersInGroup,
     decksInGroup     : decksInGroup,
     decksInUser      : decksInUser,

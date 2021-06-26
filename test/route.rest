@@ -1,1 +1,21 @@
-GET http://localhost:8080/lb/here/
+GET http://localhost:8080/users
+
+###
+
+POST http://localhost:8080/users/create
+Content-Type: application/json
+
+{
+    "name": "sean2",
+    "password": "password"
+}
+
+###
+
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+    "name": "Sean2",
+    "password": "password"
+}

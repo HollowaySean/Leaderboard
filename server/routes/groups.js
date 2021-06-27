@@ -59,6 +59,20 @@ router.post('/adduser', async (req, res) => {
     }
 });
 
+// Add deck to group
+router.post('/adddeck', async (req, res) => {
+    
+    try {
+    
+        // Add deck to groupDecks database
+        queryDB.addDeckToGroup(req.body.groupID, req.body.userID, req.body.deckID);
+        res.status(201).send('Deck added to group');
+
+    } catch {
+        res.status(500).send();
+    }
+});
+
 // Get list of users in group
 router.get('/users', async (req, res) => {
     try {
@@ -75,6 +89,97 @@ router.get('/users', async (req, res) => {
     }
 });
 
+// Get list of decks in group
+router.get('/decks', async (req, res) => {
+    try {
+
+        // Search groupID in database
+        queryDB.decksInGroup(req.body.groupID, async (queryResult) => {
+
+            // Return list of userID values
+            res.status(200).json({ deckID : queryResult }).send();
+        })
+
+    } catch {
+        res.status(500).send();
+    }
+});
+
+// Get group leaderboard
+router.get('/ranking', async (req, res) => {
+    try {
+
+        // Search groupID in database
+        queryDB.getLeaderboard(req.body.groupID, async (queryResult) => {
+
+            let sortedList = queryResult.sortByRating();
+            for(let i = 0; i < sortedList.length; i++) {
+                sortedList[i].rank = i+1;
+                sortedList[i].rating = sortedList[i].mu - 3*sortedList[i].sigma;
+                delete sortedList[i].mu;
+                delete sortedList[i].sigma;
+                delete sortedList[i].isWinner;
+                
+            }
+
+            // Return list of deck rating information
+            res.status(200).json(sortedList).send();
+        })
+
+    } catch {
+        res.status(500).send();
+    }
+});
+
+// Get group statistic history
+router.get('/audit', async (req, res) => {
+    try {
+
+        // Search groupID in database
+        queryDB.getHistory(req.body.groupID, async (queryResult) => {
+
+            // Return audit list of decks and ratings
+            res.status(200).json(queryResult).send();
+        })
+
+    } catch {
+        res.status(500).send();
+    }
+});
+
+// Get group match history
+router.get('/history', async (req, res) => {
+    try {
+
+        // Search groupID in database
+        queryDB.getHistory(req.body.groupID, async (queryResult) => {
+
+            // Return historical list of matches
+            res.status(200).json(queryResult).send();
+        })
+
+    } catch {
+        res.status(500).send();
+    }
+});
+
+// Get most recent match number
+router.get('/lastmatch', async (req, res) => {
+    try {
+
+        // Search groupID in database
+        queryDB.getLastMatchNum(req.body.groupID, async (queryResult) => {
+
+            // Return last match number
+            res.status(200).json({ matchNum : queryResult }).send();
+        })
+
+    } catch {
+        res.status(500).send();
+    }
+});
+
+// Add new match to records
 
 
 module.exports = router;

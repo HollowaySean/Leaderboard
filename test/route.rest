@@ -1,17 +1,18 @@
-GET http://localhost:8080/groups/users
+GET http://localhost:8080/groups/lastmatch
 Content-Type: application/json
 
 {
-    "groupID" : 2
+    "groupID" : 1
 }
 
 
 ###
 
-POST http://localhost:8080/groups/adduser
+POST http://localhost:8080/groups/adddeck
 Content-Type: application/json
 
 {
-    "userID" : 1,
-    "inviteCode" : "XYGRB"
+    "userID"    : 1,
+    "groupID"   : 15,
+    "deckID"    : 12
 }

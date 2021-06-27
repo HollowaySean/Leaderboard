@@ -300,8 +300,8 @@ class GroupMatchInfo {
     //TODO
 }
 
-// Get match history
-function getHistory(groupID, callback) {
+// Get statistic audit history
+function getAudit(groupID, callback) {
 
     // MySQL query
     db.query('SELECT * FROM `groupRecords` WHERE groupID = ' + groupID + '; ', 
@@ -323,6 +323,33 @@ function getHistory(groupID, callback) {
 
             // Send callback after completion
             callback(history);
+        });
+}
+
+// Get match history
+function getHistory(groupID, callback) {
+
+    // MySQL query
+    db.query('SELECT * FROM groupMatches WHERE groupID = ' + groupID + '; ', 
+        function (err, results) {
+            if(err) throw err;
+
+            callback(results);
+            // // Pack class of leaderboard data
+            // let history = new GroupMatchInfo();
+            // let deckIDList = [];
+            // for(let i = 0; i < results.length; i++){
+            //     history.addMatch(new MatchInfo(
+            //         results[i].matchNum, 
+            //         results[i].deckID, 
+            //         results[i].newRating)
+            //     );
+            //     deckIDList.push(results[i].deckID);
+            // }
+            // history.deckIDList = [...new Set(deckIDList)];
+
+            // // Send callback after completion
+            // callback(history);
         });
 }
 
@@ -481,6 +508,7 @@ module.exports = {
     getDeckInfo      : getDeckInfo,
     MatchInfo        : MatchInfo,
     GroupMatchInfo   : GroupMatchInfo,
+    getAudit         : getAudit,
     getHistory       : getHistory,
     getLastMatchNum  : getLastMatchNum,
     createUser       : createUser,

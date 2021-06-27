@@ -1,11 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import Login from './Login/Login';
+import App from './App/App';
+import env from "react-dotenv";
 
 ReactDOM.render(
   <React.StrictMode>
-    <Login />
+    <App />
+    <p>Using port: {env.PORT}</p>
   </React.StrictMode>,
   document.getElementById('root')
 );

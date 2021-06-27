@@ -1,5 +1,5 @@
 // Environmental variable configuration
-require('dotenv').config();
+require('dotenv').config({path : __dirname+'/../.env'});
 
 // Module requirements
 const express = require('express');

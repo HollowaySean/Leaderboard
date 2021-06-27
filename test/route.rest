@@ -1,21 +1,17 @@
-GET http://localhost:8080/users
-
-###
-
-POST http://localhost:8080/users/create
+GET http://localhost:8080/groups/users
 Content-Type: application/json
 
 {
-    "name": "sean2",
-    "password": "password"
+    "groupID" : 2
 }
 
+
 ###
 
-POST http://localhost:8080/users/login
+POST http://localhost:8080/groups/adduser
 Content-Type: application/json
 
 {
-    "name": "Sean2",
-    "password": "password"
+    "userID" : 1,
+    "inviteCode" : "XYGRB"
 }

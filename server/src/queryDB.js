@@ -5,7 +5,6 @@
 const minPlayers = 2;
 const maxPlayers = 6;
 
-const { match } = require('assert');
 // Connect to database
 const mysql = require('mysql');
 const db = mysql.createConnection({
@@ -122,12 +121,12 @@ function groupsWithUser(userID, callback) {
 function userWithID(userID, callback) {
 
     // MySQL query
-    db.query('SELECT userName FROM `users` WHERE userID = ' + mysql.escape(userID) + ' LIMIT 1;', 
+    db.query('SELECT userID, userName FROM `users` WHERE userID IN (' + userID + ');', 
         function (err, results) {
             if(err) throw err;
 
             // Send callback after completion
-            callback(results[0].userName);
+            callback(results);
         }
     );
 }
@@ -136,12 +135,27 @@ function userWithID(userID, callback) {
 function groupWithID(groupID, callback) {
 
     // MySQL query
-    db.query('SELECT groupName FROM `groups` WHERE groupID = ' + mysql.escape(groupID) + ' LIMIT 1;', 
+    db.query('SELECT groupID, groupName FROM `groups` WHERE groupID IN (' + groupID + ');', 
         function (err, results) {
             if(err) throw err;
 
             // Send callback after completion
-            callback(results[0].groupName);
+            callback(results);
+        }
+    );
+}
+
+// Convert invite code to groupID and name
+function groupWithInviteCode(inviteCode, callback) {
+
+    // MySQL query
+    db.query(`SELECT groupID, groupName FROM groups WHERE inviteCode = ` 
+        + mysql.escape(inviteCode) + ` LIMIT 1;`, 
+        function (err, results) {
+            if(err) throw err;
+
+            // Send callback after completion
+            callback(results);
         }
     );
 }
@@ -150,12 +164,12 @@ function groupWithID(groupID, callback) {
 function deckWithID(deckID, callback) {
 
     // MySQL query
-    db.query('SELECT deckName FROM `decks` WHERE deckID = ' + mysql.escape(deckID) + ' LIMIT 1;', 
+    db.query('SELECT deckID, deckName FROM `decks` WHERE deckID IN (' + deckID + ');', 
         function (err, results) {
             if(err) throw err;
 
             // Send callback after completion
-            callback(results[0].deckName);
+            callback(results);
         }
     );
 }
@@ -333,13 +347,35 @@ function createUser(userName, hash) {
 }
 
 // Create new group
-function createGroup(groupName, inviteCode) {
-    db.query('INSERT IGNORE INTO groups (groupName, inviteCode) VALUES (' + mysql.escape(groupName) + ', ' + mysql.escape(inviteCode) + ');');
+function createGroup(groupName, inviteCode, callback) {
+
+    // MySQL query
+    db.query(
+        `INSERT IGNORE INTO groups (groupName, inviteCode) VALUES
+        (` + mysql.escape(groupName) + ', ' + mysql.escape(inviteCode) + `);`, 
+        (err, results) => {
+            if(err) throw err;
+
+            // Return groupID after insert
+            db.query(`SELECT MAX(groupID) AS groupID FROM groups;`, (err, results) => {
+                callback(results);
+            });
+        });
 }
 
 // Create new deck
 function createDeck(deckName, userID) {
-    db.query('INSERT IGNORE INTO decks (deckName, userID) VALUES (' + mysql.escape(deckName) + ', ' + mysql.escape(userID) + ');');
+    db.query(
+        `INSERT IGNORE INTO decks (deckName, userID) VALUES 
+        (` + mysql.escape(deckName) + ', ' + mysql.escape(userID) + `);`, 
+        (err, results) => {
+            if(err) throw err;
+
+            // Return groupID after insert
+            db.query(`SELECT MAX(groupID) AS groupID FROM groups;`, (err, results) => {
+                callback(results);
+            });
+        });
 }
 
 // Add user to group
@@ -437,6 +473,7 @@ module.exports = {
     groupsWithUser   : groupsWithUser,
     userWithID       : userWithID,
     groupWithID      : groupWithID,
+    groupWithCode    : groupWithInviteCode,
     deckWithID       : deckWithID,
     DeckInfo         : DeckInfo,
     GroupDeckInfo    : GroupDeckInfo,

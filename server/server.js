@@ -5,12 +5,12 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 
-// Router requirements
-const lbRouter = require('./routes/leaderboard');
-app.use('/lb', lbRouter);
+// Routes
+const userRouter = require('./routes/users');
+app.use('/users', userRouter);
 
-const loginRouter = require('./routes/login');
-app.use('/users', loginRouter);
+const groupRouter = require('./routes/groups');
+app.use('/groups', groupRouter);
 
 // Start listening on port
 app.listen(process.env.PORT, () => console.log('Server started on port ' + process.env.PORT));

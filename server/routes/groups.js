@@ -1,5 +1,6 @@
 // Module requirements
 const express   = require('express');
+const { createMatch, matchUpdateDecks } = require('../src/queryDB');
 const router    = express.Router();
 const queryDB   = require('../src/queryDB');
 router.use(express.json());
@@ -179,7 +180,45 @@ router.get('/lastmatch', async (req, res) => {
     }
 });
 
-// Add new match to records
+// Add process new match
+router.post('/newmatch', async(req, res) => {
+    try {
+
+        // Get DeckInfo objects
+        let deckList = req.body.results.map(element => element.deckID);
+        queryDB.getDeckInfo(req.body.groupID, deckList, 
+            (deckInfoList) => {
+                
+                // Set isWinner values for resulting decklist
+                for(let i = 0; i < deckInfoList.length; i++ ) {
+                    deckInfoList[i].isWinner = req.body.results[i].isWinner;
+                }
+
+                // Generate new statistics
+                deckInfoList = queryDB.matchUpdateDecks(deckInfoList, req.body.matchNum);
+
+                let muList      = deckInfoList.map(element => element.mu);
+                let sigmaList   = deckInfoList.map(element => element.sigma);
+                let ratingList  = deckInfoList.map(element => (element.mu - 3* element.sigma));
+
+                // Update each deck and add new audit record
+                for(let i = 0; i < deckList.length; i++) {
+                    queryDB.createRecord(req.body.groupID, req.body.matchNum, deckList[i], ratingList[i]);
+                    queryDB.updateDeck(req.body.groupID, deckList[i], muList[i], sigmaList[i]);
+                }
+
+                // Add match to list in database
+                queryDB.createMatch(req.body.groupID, req.body.matchNum, deckInfoList);
+
+                // If none of those fail, return HTTP code
+                res.status(201).send('Match successfully recorded');
+
+            });
+
+    } catch {
+        res.status(500).send();
+    }
+});
 
 
 module.exports = router;

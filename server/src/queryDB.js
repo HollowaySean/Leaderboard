@@ -249,20 +249,23 @@ function getLeaderboard(groupID, callback) {
 function getDeckInfo(groupID, deckID, callback) {
 
     // MySQL query
-    db.query('SELECT * FROM `groupDecks` WHERE groupID = ' + groupID + ', deckID = ' + deckID + ' LIMIT 1;', 
+    db.query('SELECT * FROM groupDecks WHERE groupID = ' + groupID + ' AND deckID IN (' + deckID + ');', 
         function (err, results) {
             if(err) throw err;
 
             // Pack class of leaderboard data
-            let deck = new DeckInfo(
-                results[0].userID, 
-                groupID,
-                deckID, 
-                results[0].mu,
-                results[0].sigma
-            );
+            let deckInfoList = [];
+            for(let i = 0; i < results.length; i++) {
+                deckInfoList.push(new DeckInfo(
+                    results[i].userID, 
+                    groupID,
+                    deckID[i], 
+                    results[i].mu,
+                    results[i].sigma
+                ));
+            }
             // Send callback after completion
-            callback(deck);
+            callback(deckInfoList);
         });
 }
 
@@ -304,7 +307,7 @@ class GroupMatchInfo {
 function getAudit(groupID, callback) {
 
     // MySQL query
-    db.query('SELECT * FROM `groupRecords` WHERE groupID = ' + groupID + '; ', 
+    db.query('SELECT * FROM groupRecords WHERE groupID = ' + groupID + '; ', 
         function (err, results) {
             if(err) throw err;
 
@@ -467,7 +470,7 @@ function createRecord(groupID, matchNum, deckID, newRating) {
 
 // Change elo rating values of deck
 function updateDeck(groupID, deckID, newMu, newSigma) {
-    db.query('UPDATE groupDecks SET mu = ' + mysql.escape(newMu) + ', sigma = ' + mysql.escape(newSigma) + ' WHERE deckID = ' + mysql.escape(deckID) + ' AND groupID = ' + mysql.escape(groupID) + ';')
+    db.query('UPDATE groupDecks SET mu = ' + newMu + ', sigma = ' + newSigma + ' WHERE deckID = ' + deckID + ' AND groupID = ' + groupID + ';')
 }
 
 //// ELO SYSTEM HELPER FUNCTIONS ////

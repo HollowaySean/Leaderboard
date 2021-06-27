@@ -1,10 +1,9 @@
-GET http://localhost:8080/groups/lastmatch
+GET http://localhost:8080/groups/history
 Content-Type: application/json
 
 {
     "groupID" : 1
 }
-
 
 ###
 
@@ -12,7 +11,31 @@ POST http://localhost:8080/groups/adddeck
 Content-Type: application/json
 
 {
-    "userID"    : 1,
-    "groupID"   : 15,
-    "deckID"    : 12
+    "groupID" : 1,
+    "userID" : 2,
+    "deckID" : 3
+}
+
+###
+
+POST http://localhost:8080/groups/newmatch
+Content-Type: application/json
+
+{
+    "groupID"   : 1,
+    "matchNum"  : 40,
+    "results"   : [
+        {
+            "deckID"    : 1,
+            "isWinner"  : false
+        },
+        {
+            "deckID"    : 3,
+            "isWinner"  : true
+        },
+        {
+            "deckID"    : 2,
+            "isWinner"  : false
+        }
+    ]
 }

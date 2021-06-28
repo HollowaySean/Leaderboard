@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import Login from '../Login/Login';
-import GroupList from '../GroupList/GroupList';
-import GroupInfo from '../GroupInfo/GroupInfo';
+import Login from './Login';
+import GroupList from './GroupList';
+import GroupInfo from './GroupInfo';
 
 
 // Flag to avoid infinite loop

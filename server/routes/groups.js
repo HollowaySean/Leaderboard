@@ -74,6 +74,22 @@ router.post('/adddeck', async (req, res) => {
     }
 });
 
+// Get group names by id
+router.get('/name', async (req, res) => {
+    try {
+
+        // Search groupID in database
+        queryDB.groupWithID(req.query.groupID, async (queryResult) => {
+
+            // Return list of userID values
+            res.status(200).json({ groupName : queryResult });
+        })
+
+    } catch {
+        res.status(500).send();
+    }
+});
+
 // Get list of users in group
 router.get('/users', async (req, res) => {
     try {

@@ -16,9 +16,6 @@ Content-Type: application/json
 }
 
 ###
-GET http://192.168.3.202:8081/users/groups
-Content-Type: application/json
 
-{
-    "userID" : 8
-}
+GET http://192.168.3.202:8081/users/groups?userID=8
+Content-Type: application/json

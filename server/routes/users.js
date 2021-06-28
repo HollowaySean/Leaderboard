@@ -67,6 +67,9 @@ router.post('/login', async (req, res) => {
 router.get('/groups', async (req, res) => {
     try {
 
+        console.log(req.query);
+        console.log(req.params);
+
         // Search userID in database
         queryDB.groupsWithUser(req.query.userID, (queryResult) => {
 

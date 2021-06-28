@@ -5,15 +5,8 @@ export default function GroupList(props) {
     // Set ref hooks
     const messageRef = useRef([]);
 
-    fetch(props.API_ROUTE + '/users/groups', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          userID : props.userID
-        })
-      }).then((res) => {
+    fetch(props.API_ROUTE + '/users/groups?userID=8')
+    .then((res) => {
 
         console.log(res)
   
@@ -21,16 +14,15 @@ export default function GroupList(props) {
         switch(res.status) {
           case 200:
             res.json()
-            .then((body) => console.log(body));
+            .then((body) => {
+                messageRef.current.innerHTML = body.groupID;
+            });
             break;
           default:
             console.log('Unknown HTTP response: ' + res.status);
         }
       })
-      .catch((req, error) => {
-  
-        console.log(error);
-        console.log(req);
+      .catch((error) => {
 
         // Catch HTTP errors
         messageRef.current.innerHTML = 'Error obtaining user groups.';

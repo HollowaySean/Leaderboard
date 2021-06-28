@@ -24,7 +24,7 @@ router.post('/create', async (req, res) => {
                     groupID     : queryResult[0].groupID,
                     groupName   : req.body.groupName,
                     inviteCode  : inviteCode 
-                    }).send();
+                    });
             });
         
     } catch {
@@ -50,7 +50,8 @@ router.post('/adduser', async (req, res) => {
                 queryDB.addUserToGroup(queryResult[0].groupID, req.body.userID);
                 res.status(201).json({
                     groupID     : queryResult[0].groupID,
-                    groupName   : queryResult[0].groupName
+                    groupName   : queryResult[0].groupName,
+                    inviteCode  : req.body.inviteCode
                 })
             }
         });

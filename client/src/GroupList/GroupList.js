@@ -7,6 +7,7 @@ export default function GroupList(props) {
     // Set ref hooks
     const messageRef = useRef([]);
     const newGroupRef = useRef([]);
+    const inviteRef = useRef([]);
 
     // Set state variables
     const [idList, setIDList] = useState(null);
@@ -47,7 +48,6 @@ export default function GroupList(props) {
                 case 200:
                     res.json()
                     .then((body) => {
-                        console.log(body.groupName);
                         infoList = body;
                         setNameList(body.groupName);
                     });
@@ -78,9 +78,101 @@ export default function GroupList(props) {
 
      }, [idList, props.API_ROUTE, props.userID]);
 
+     // Callback function to handle creating a new group
      function HandleCreateGroup(e) {
 
-        console.log("FINISH THIS AT SOME POINT");
+        if(newGroupRef.current.value === '') {return;}
+
+        fetch(props.API_ROUTE + '/groups/create', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              groupName: newGroupRef.current.value
+            })
+          }).then((res) => {
+    
+            // Handle HTTP status codes
+            switch(res.status) {
+            case 201:
+                res.json()
+                .then((body) => {
+                    
+                    newGroupRef.current.value = '';
+                    messageRef.current.innerHTML = 'Created new group \'' + body.groupName + '\'';
+
+                    // Add self to group
+                    console.log(body.inviteCode);
+                    joinGroup(body.inviteCode);
+                });
+                break;
+            default:
+                console.log('Unknown HTTP response: ' + res.status);
+            }
+        })
+        .catch((error) => {
+
+            // Catch HTTP errors
+            messageRef.current.innerHTML = 'Error creating group.';
+        });
+     }
+
+     // Direct function to handle joining a new group
+     function joinGroup(inviteCode) {
+
+        // Check validity
+        if(inviteCode.length !== 5) {
+            messageRef.current.innerHTML = 'Invalid invite code'
+            return;
+        }
+        
+        // Fetch request to add user to group
+        fetch(props.API_ROUTE + '/groups/adduser', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              inviteCode: inviteCode,
+              userID : props.userID
+            })
+          }).then((res) => {
+    
+            // Handle HTTP status codes
+            switch(res.status) {
+            case 201:
+                res.json()
+                .then((body) => {
+                    
+                    infoList.push(body);
+                    var joinedNames = [nameList, body.groupName];
+                    setNameList(joinedNames);
+                    newGroupRef.current.value = '';
+
+                    messageRef.current.innerHTML += '<br />Added user to group \'' + body.groupName + '\'';
+                });
+                break;
+            case 400:
+                messageRef.current.innerHTML = 'No group found with invite code.'
+                break;
+            default:
+                console.log('Unknown HTTP response: ' + res.status);
+            }
+        })
+        .catch((error) => {
+
+            // Catch HTTP errors
+            messageRef.current.innerHTML = 'Error obtaining user groups.';
+        });
+
+     }
+
+     // Callback function to handle joining a new gorup
+     function HandleJoinGroup(e) {
+        messageRef.current.innerHTML = '';
+        joinGroup(inviteRef.current.value);
+        inviteRef.current.value = '';
      }
 
     // Return JSX
@@ -101,10 +193,15 @@ export default function GroupList(props) {
             ))}
         </tbody></table>
         <p ref={messageRef}></p>
-        <label htmlFor="newGroupName">Create new group:</label>
+        <label htmlFor={newGroupRef}>Create new group:</label>
         <br/>
         <input type="text" ref={newGroupRef}></input>
         <button onClick={HandleCreateGroup}>Create</button>
+        <br />
+        <label htmlFor={inviteRef}>Join group by invite code:</label>
+        <br/>
+        <input type="text" ref={inviteRef}></input>
+        <button onClick={HandleJoinGroup}>Create</button>
         </>
     )
 }

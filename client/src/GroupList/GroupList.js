@@ -8,9 +8,7 @@ export default function GroupList(props) {
 
     // Set state variables
     const [groupList, setGroupList] = useState(null);
-    const [groupNames, setGroupNames] = useState(null);
-
-
+    const [groupNames, setGroupNames] = useState([]);
 
     // Retrieve group list via fetch
     useEffect(() => {
@@ -47,7 +45,6 @@ export default function GroupList(props) {
                 case 200:
                     res.json()
                     .then((body) => {
-                        console.log(body);
                         setGroupNames(body.groupName);
                     });
                     break;
@@ -75,13 +72,18 @@ export default function GroupList(props) {
             retrieveGroupNames();
         }
 
-     }, [groupList]);
+     }, [groupList, props.API_ROUTE, props.userID]);
 
     // Return JSX
     return (
         <>
         <h1>Your Groups:</h1>
-        {groupNames}
+        {groupNames
+        .map(element => (
+            <li key={element.toString()}>
+                {element}
+            </li>
+        ))}
         <p ref={messageRef}></p>
         </>
     )

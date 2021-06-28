@@ -141,18 +141,12 @@ function userWithID(userID, callback) {
 function groupWithID(groupID, callback) {
 
     // MySQL query
-    db.query('SELECT groupID, groupName FROM `groups` WHERE groupID IN (' + groupID + ');', 
+    db.query('SELECT groupID, groupName, inviteCode FROM `groups` WHERE groupID IN (' + groupID + ');', 
         function (err, results) {
             if(err) throw err;
 
-            // Pack array of data
-            let groups = [];
-            for(let i = 0; i < results.length; i++){
-                groups.push(results[i].groupName);
-            }
-
             // Send callback after completion
-            callback(groups);
+            callback(results);
         }
     );
 }

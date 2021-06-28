@@ -104,10 +104,10 @@ export default function Login(props) {
     <h1>Login:</h1>
     <form>
       <label htmlFor="username">Username</label>
-      <input ref={usernameRef} type="text" name="username"/>
+      <input ref={usernameRef} type="text" name="username" autoComplete="username"/>
       <br />
       <label htmlFor="password">Password</label>
-      <input ref={passwordRef} type="password" name="password"></input>
+      <input ref={passwordRef} type="password" name="password" autoComplete="current-password"></input>
     </form>
     <br />
     <label htmlFor="rememberMe">Stay logged in</label>

@@ -25,7 +25,9 @@ export default function GroupList(props) {
                 switch(res.status) {
                 case 200:
                     res.json()
-                    .then((body) => setIDList(body.groupID));
+                    .then((body) => {
+                        setIDList(body)
+                    });
                     break;
                 default:
                     console.log('Unknown HTTP response: ' + res.status);

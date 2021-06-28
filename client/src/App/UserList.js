@@ -46,7 +46,7 @@ export default function UserList(props) {
                 case 200:
                     res.json()
                     .then((body) => {
-                        infoList = body;
+                        infoList = body
                         console.log(infoList);
                         setNameList(body.userName);
                     });
@@ -63,6 +63,7 @@ export default function UserList(props) {
         }
 
         // Get user list if empty, otherwise grab list of names
+        console.log(idList);
         if(idList === null){
 
             retrieveUserList()

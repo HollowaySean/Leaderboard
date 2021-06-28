@@ -99,7 +99,7 @@ router.get('/users', async (req, res) => {
         queryDB.usersInGroup(req.query.groupID, async (queryResult) => {
 
             // Return list of userID values
-            res.status(200).json({ userID : queryResult });
+            res.status(200).json({ userID: queryResult});
         })
 
     } catch {

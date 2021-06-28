@@ -103,10 +103,7 @@ router.get('/names', async (req, res) => {
         queryDB.userWithID(req.query.userID, (queryResult) => {
 
             // Return list of user names
-            res.status(200).json({ 
-                userName : queryResult, 
-                userID : req.query.userID
-            });
+            res.status(200).json(queryResult);
         })
 
     } catch {

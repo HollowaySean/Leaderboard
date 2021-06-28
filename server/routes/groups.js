@@ -68,7 +68,7 @@ router.post('/adddeck', async (req, res) => {
     
         // Add deck to groupDecks database
         queryDB.addDeckToGroup(req.body.groupID, req.body.userID, req.body.deckID);
-        res.status(201).send('Deck added to group');
+        res.status(201).status('Deck added to group');
 
     } catch {
         res.status(500).send();

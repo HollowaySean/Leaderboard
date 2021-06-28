@@ -28,8 +28,15 @@ router.post('/create', async (req, res) => {
         // Search userID in database
         queryDB.createDeck(req.body.deckName, req.body.userID, (queryResult) => {
 
+            console.log(queryResult);
+            console.log(queryResult[0]);
+            
             // Return list of user names
-            res.status(201).send('Deck created successfully');
+            res.status(201).json({
+                deckID      : queryResult[0].deckID,
+                deckName    : req.body.deckName,
+                userID      : req.body.userID
+            });
         })
 
     } catch {

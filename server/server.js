@@ -14,6 +14,9 @@ app.use('/users', userRouter);
 const groupRouter = require('./routes/groups');
 app.use('/groups', groupRouter);
 
+const deckRouter = require('./routes/decks');
+app.use('/decks', deckRouter);
+
 app.get('/test', async (req, res) => {
     res.status(201).send('Success!');
 });

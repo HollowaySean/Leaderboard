@@ -115,7 +115,7 @@ router.get('/decks', async (req, res) => {
         queryDB.decksInGroup(req.body.groupID, async (queryResult) => {
 
             // Return list of userID values
-            res.status(200).json({ deckID : queryResult });
+            res.status(200).json(queryResult);
         })
 
     } catch {

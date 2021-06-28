@@ -14,7 +14,7 @@ export default function UserList(props) {
     // Retrieve user list via useeffect and fetch
     useEffect(() => {
 
-        // Fetch list of groups
+        // Fetch list of users
         async function retrieveUserList() {
             fetch(props.API_ROUTE + '/groups/users?groupID=' + props.groupID)
             .then((res) => {
@@ -23,7 +23,7 @@ export default function UserList(props) {
                 switch(res.status) {
                 case 200:
                     res.json()
-                    .then((body) => setIDList(body.userID));
+                    .then((body) => setIDList(body.userID))
                     break;
                 default:
                     console.log('Unknown HTTP response: ' + res.status);
@@ -36,7 +36,7 @@ export default function UserList(props) {
             });
         }
 
-        // Fetch group names
+        // Fetch user names
         function retrieveUserNames() {
             fetch(props.API_ROUTE + '/users/names?userID=' + idList)
             .then((res) => {
@@ -47,7 +47,6 @@ export default function UserList(props) {
                     res.json()
                     .then((body) => {
                         infoList = body
-                        console.log(infoList);
                         setNameList(body.userName);
                     });
                     break;
@@ -63,7 +62,6 @@ export default function UserList(props) {
         }
 
         // Get user list if empty, otherwise grab list of names
-        console.log(idList);
         if(idList === null){
 
             retrieveUserList()
@@ -76,7 +74,13 @@ export default function UserList(props) {
             retrieveUserNames();
         }
 
-    }, [idList, props.API_ROUTE, props.groupID]);
+    }, [idList, nameList, props.API_ROUTE]);
+
+    useEffect(() => {
+        infoList = [];
+        setIDList(null)
+        setNameList([]);
+    }, [props.groupID]);
 
     // Return JSX
     return (

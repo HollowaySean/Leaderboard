@@ -1,1 +1,24 @@
-GET http://192.168.3.202:8081/test
+POST http://192.168.3.202:8081/groups/create
+Content-Type: application/json
+
+{
+    "groupName" : "testGroup2"
+}
+
+###
+
+POST http://192.168.3.202:8081/groups/adduser
+Content-Type: application/json
+
+{
+    "userID" : 8,
+    "inviteCode" : "IDQSD"
+}
+
+###
+GET http://192.168.3.202:8081/users/groups
+Content-Type: application/json
+
+{
+    "userID" : 8
+}

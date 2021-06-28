@@ -68,7 +68,7 @@ router.get('/groups', async (req, res) => {
     try {
 
         // Search userID in database
-        queryDB.groupsWithUser(req.body.userID, (queryResult) => {
+        queryDB.groupsWithUser(req.query.userID, (queryResult) => {
 
             // Return list of groupID values
             res.status(200).json({ groupID : queryResult }).send();

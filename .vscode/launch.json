@@ -19,11 +19,17 @@
         {
             "type": "pwa-chrome",
             "request": "launch",
-            "name": "Client",
+            "name": "Client old",
             "url": "http://localhost:8080",
             "webRoot": "${workspaceFolder}",
             "preLaunchTask": "Sleepdelay"
         },
+        {
+            "command": "npm --prefix ./client start",
+            "name": "Client",
+            "request": "launch",
+            "type": "node-terminal"
+        }
     ],
     "compounds": [
         {

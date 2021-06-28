@@ -10,6 +10,7 @@ export default function GroupList(props) {
     const inviteRef = useRef([]);
 
     // Set state variables
+    // const [groupSelected, selectGroup] = useState(null);
     const [idList, setIDList] = useState(null);
     const [nameList, setNameList] = useState([]);
 
@@ -76,10 +77,10 @@ export default function GroupList(props) {
             retrieveGroupNames();
         }
 
-     }, [idList, props.API_ROUTE, props.userID]);
+    }, [idList, props.API_ROUTE, props.userID]);
 
-     // Callback function to handle creating a new group
-     function HandleCreateGroup(e) {
+    // Callback function to handle creating a new group
+    function HandleCreateGroup(e) {
 
         if(newGroupRef.current.value === '') {return;}
 
@@ -116,10 +117,10 @@ export default function GroupList(props) {
             // Catch HTTP errors
             messageRef.current.innerHTML = 'Error creating group.';
         });
-     }
+    }
 
-     // Direct function to handle joining a new group
-     function joinGroup(inviteCode) {
+    // Direct function to handle joining a new group
+    function joinGroup(inviteCode) {
 
         // Check validity
         if(inviteCode.length !== 5) {
@@ -165,15 +166,25 @@ export default function GroupList(props) {
             // Catch HTTP errors
             messageRef.current.innerHTML = 'Error obtaining user groups.';
         });
+    }
 
-     }
+    // ???
+    // useEffect(() => {
+    //     props.groupCallback(groupSelected);
+    // }, [groupSelected]);
 
-     // Callback function to handle joining a new gorup
+    // Callback function to handle joining a new group
      function HandleJoinGroup(e) {
         messageRef.current.innerHTML = '';
         joinGroup(inviteRef.current.value);
         inviteRef.current.value = '';
-     }
+    }
+
+    // Callback function to handle selecting a group
+    // function HandleSelectGroup(groupID) {
+    //     selectGroup(groupID);
+    //     props.groupIDCallback(groupID);
+    // }
 
     // Return JSX
     return (
@@ -187,7 +198,7 @@ export default function GroupList(props) {
             {infoList
             .map(element => (
                 <tr key={element.groupID}>
-                    <td>{element.groupName}</td>
+                    <td onClick={() => props.groupIDCallback(element.groupID)}>{element.groupName}</td>
                     <td>{element.inviteCode}</td>
                 </tr>
             ))}

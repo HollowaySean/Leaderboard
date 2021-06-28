@@ -100,7 +100,7 @@ export default function Login(props) {
 
   // JSX return
   return (
-    <>
+    <div>
     <h1>Login:</h1>
     <form>
       <label htmlFor="username">Username</label>
@@ -117,6 +117,6 @@ export default function Login(props) {
     <button onClick={handleCreateUser}>Sign up</button>
     <br />
     <p ref={messageRef}></p>
-    </>
+    </div>
   )
 }

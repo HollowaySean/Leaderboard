@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Login from '../Login/Login';
 import GroupList from '../GroupList/GroupList';
+import GroupInfo from '../GroupInfo/GroupInfo';
+
 
 // Flag to avoid infinite loop
 let checkedLogin = false;
@@ -10,6 +12,7 @@ function App(props) {
   // State hooks
   const [isLoggedIn, setLoggedIn] = useState(false);
   const [userID, setUserID] = useState(null);
+  const [groupID, setGroupID] = useState(null);
 
   // Wrap in useeffect
   useEffect(() => {
@@ -37,18 +40,36 @@ function App(props) {
     }
   }
 
+  // Callback function to choose group to examine
+  function groupChosen(newGroupID) {
+    setGroupID(newGroupID);
+    console.log("made it here");
+  }
+
   // JSX return
   if(isLoggedIn) {
-    return <GroupList 
+    return (
+    <div>
+    <GroupList 
       API_ROUTE={props.API_ROUTE} 
       userID={userID}
-      />
+      groupIDCallback={groupChosen}
+    />
+    <GroupInfo
+      API_ROUTE={props.API_ROUTE}
+      groupID={groupID}
+      userID={userID}
+    />
+    </div>
+    )
 
   }else{
-    return <Login 
+    return ( 
+    <Login 
       API_ROUTE={props.API_ROUTE} 
       loginCallback={loginComplete}
-      />
+    />
+    )
   }
 }
 

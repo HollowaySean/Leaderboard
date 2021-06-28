@@ -105,7 +105,6 @@ export default function GroupList(props) {
                     messageRef.current.innerHTML = 'Created new group \'' + body.groupName + '\'';
 
                     // Add self to group
-                    console.log(body.inviteCode);
                     joinGroup(body.inviteCode);
                 });
                 break;
@@ -165,7 +164,7 @@ export default function GroupList(props) {
         .catch((error) => {
 
             // Catch HTTP errors
-            messageRef.current.innerHTML = 'Error obtaining user groups.';
+            messageRef.current.innerHTML = 'Error adding user to group.';
         });
     }
 

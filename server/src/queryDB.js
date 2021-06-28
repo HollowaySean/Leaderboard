@@ -395,8 +395,8 @@ function createDeck(deckName, userID) {
         (err, results) => {
             if(err) throw err;
 
-            // Return groupID after insert
-            db.query(`SELECT MAX(groupID) AS groupID FROM groups;`, (err, results) => {
+            // Return deckID after insert
+            db.query(`SELECT MAX(deckID) AS deckID FROM decks;`, (err, results) => {
                 callback(results);
             });
         });

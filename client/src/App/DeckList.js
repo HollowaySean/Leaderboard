@@ -6,6 +6,7 @@ export default function DeckList(props) {
 
     // Set ref hooks
     const messageRef = useRef([]);
+    const newDeckRef = useRef([]);
 
     // Set state variables
     const [idList, setIDList] = useState(null);
@@ -25,9 +26,8 @@ export default function DeckList(props) {
                 case 200:
                     res.json()
                     .then((body) => {
-                        console.log(body);
                         infoList = body;
-                        setIDList(body.length > 0 ? body.deckID : []);
+                        setIDList(body.length > 0 ? body.map(element => element.deckID) : []);
                     });
                     break;
                 default:
@@ -51,11 +51,37 @@ export default function DeckList(props) {
                 case 200:
                     res.json()
                     .then((body) => {
-                        console.log(body);
                         for(let i = 0; i < infoList.length; i++) {
-                            infoList[i].deckName = body.deckName[i];
+                            infoList[i].deckName = body[i].deckName;
                         }
                         setNameList(body.deckName);
+                    });
+                    break;
+                default:
+                    console.log('Unknown HTTP response: ' + res.status);
+                }
+            })
+            .catch((error) => {
+
+                // Catch HTTP errors
+                messageRef.current.innerHTML = 'Error obtaining deck names.';
+            });
+        }
+
+        // Fetch deck owners
+        function retrieveDeckOwners() {
+            fetch(props.API_ROUTE + '/users/names?userID=' + infoList.map(element => element.userID))
+            .then((res) => {
+        
+                // Handle HTTP status codes
+                switch(res.status) {
+                case 200:
+                    res.json()
+                    .then((body) => {
+                        for(let i = 0; i < infoList.length; i++) {
+                            infoList[i].userName = body[i].userName;
+                        }
+                        setOwnerList(body.userName);
                     });
                     break;
                 default:
@@ -70,7 +96,6 @@ export default function DeckList(props) {
         }
 
         // Get user list if empty, otherwise grab list of names
-        console.log(idList);
         if(idList === null){
 
             retrieveDeckList()
@@ -81,32 +106,122 @@ export default function DeckList(props) {
 
             // Get user names in this case
             retrieveDeckNames();
+            retrieveDeckOwners();
         }
 
     }, [idList, nameList, props.API_ROUTE]);
 
+    // Callback for changing selected group
     useEffect(() => {
+        messageRef.current.innerHTML = '';
         infoList = [];
         setIDList(null)
         setNameList([]);
+        setOwnerList([]);
     }, [props.groupID]);
+
+    // Callback funciton to handle creating a new deck
+    function HandleCreateDeck(e) {
+
+        if(newDeckRef.current.value === '') { return; }
+
+        fetch(props.API_ROUTE + '/decks/create', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              deckName : newDeckRef.current.value,
+              userID : props.userID
+            })
+          }).then((res) => {
+    
+            // Handle HTTP status codes
+            switch(res.status) {
+            case 201:
+                res.json()
+                .then((body) => {
+                    
+                    newDeckRef.current.value = '';
+                    messageRef.current.innerHTML = 'Created new deck \'' + body.deckName + '\'';
+
+                    // Add deck to group
+                    addDeckToGroup(body.deckID);
+                });
+                break;
+            default:
+                console.log('Unknown HTTP response: ' + res.status);
+            }
+        })
+        .catch((error) => {
+
+            // Catch HTTP errors
+            messageRef.current.innerHTML = 'Error creating deck.';
+        });
+
+        function addDeckToGroup(deckID) {
+            // Fetch request to add user to group
+        fetch(props.API_ROUTE + '/groups/adddeck', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              groupID : props.groupID,
+              userID : props.userID,
+              deckID : deckID
+            })
+          }).then((res) => {
+    
+            // Handle HTTP status codes
+            switch(res.status) {
+            case 201:
+                res.json()
+                .then((body) => {
+                    
+                    // Force refresh
+                    infoList = [];
+                    setIDList(null)
+                    setNameList([]);
+                    setOwnerList([]);
+
+                });
+                break;
+            default:
+                console.log('Unknown HTTP response: ' + res.status);
+            }
+        })
+        .catch((error) => {
+
+            // Catch HTTP errors
+            messageRef.current.innerHTML = 'Error adding deck to group.';
+        });
+        }
+
+    }
 
     // Return JSX
     return (
         <>
-        <h1>Users in Group:</h1>
+        <h1>Decks:</h1>
         <table><tbody>
             <tr>
+                <th>Owner</th>
                 <th>Name</th>
             </tr>
             {infoList
             .map(element => (
                 <tr key={element.deckID}>
-                    {/* <td>{element.deckName}</td> */}
+                    <td>{element.deckName}</td>
+                    <td>{element.userName}</td>
                 </tr>
             ))}
         </tbody></table>
         <p ref={messageRef}></p>
+        <label htmlFor={newDeckRef}>Create new deck:</label>
+        <br/>
+        <input type="text" ref={newDeckRef}></input>
+        <button onClick={HandleCreateDeck}>Create</button>
         </>
     )
 }

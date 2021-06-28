@@ -77,6 +77,7 @@ export default function UserList(props) {
     }, [idList, nameList, props.API_ROUTE]);
 
     useEffect(() => {
+        messageRef.current.innerHTML = '';
         infoList = [];
         setIDList(null)
         setNameList([]);
@@ -85,7 +86,7 @@ export default function UserList(props) {
     // Return JSX
     return (
         <>
-        <h1>Users in Group:</h1>
+        <h1>Users:</h1>
         <table><tbody>
             <tr>
                 <th>Name</th>

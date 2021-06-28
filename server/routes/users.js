@@ -49,7 +49,7 @@ router.post('/login', async (req, res) => {
                 // Check password
                 if(await bcrypt.compare(req.body.password, queryResult[0].hash.toString())) {
 
-                    res.status(200).json({userID : queryResult[0].userID}).send();
+                    res.status(200).json({userID : queryResult[0].userID});
                 }else{
 
                     res.status(401).send('Incorrect password');
@@ -71,7 +71,7 @@ router.get('/groups', async (req, res) => {
         queryDB.groupsWithUser(req.query.userID, (queryResult) => {
 
             // Return list of groupID values
-            res.status(200).json({ groupID : queryResult }).send();
+            res.status(200).json({ groupID : queryResult });
         })
 
     } catch {
@@ -87,7 +87,7 @@ router.get('/decks', async (req, res) => {
         queryDB.decksInUser(req.body.userID, (queryResult) => {
 
             // Return list of deckID values
-            res.status(200).json({ deckID : queryResult }).send();
+            res.status(200).json({ deckID : queryResult });
         })
 
     } catch {
@@ -103,7 +103,7 @@ router.get('/names', async (req, res) => {
         queryDB.userWithID(req.body.userID, (queryResult) => {
 
             // Return list of deckID values
-            res.status(200).json({ deckID : queryResult }).send();
+            res.status(200).json({ deckID : queryResult });
         })
 
     } catch {

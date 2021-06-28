@@ -82,7 +82,7 @@ router.get('/users', async (req, res) => {
         queryDB.usersInGroup(req.body.groupID, async (queryResult) => {
 
             // Return list of userID values
-            res.status(200).json({ userID : queryResult }).send();
+            res.status(200).json({ userID : queryResult });
         })
 
     } catch {
@@ -98,7 +98,7 @@ router.get('/decks', async (req, res) => {
         queryDB.decksInGroup(req.body.groupID, async (queryResult) => {
 
             // Return list of userID values
-            res.status(200).json({ deckID : queryResult }).send();
+            res.status(200).json({ deckID : queryResult });
         })
 
     } catch {
@@ -124,7 +124,7 @@ router.get('/ranking', async (req, res) => {
             }
 
             // Return list of deck rating information
-            res.status(200).json(sortedList).send();
+            res.status(200).json(sortedList);
         })
 
     } catch {
@@ -140,7 +140,7 @@ router.get('/audit', async (req, res) => {
         queryDB.getHistory(req.body.groupID, async (queryResult) => {
 
             // Return audit list of decks and ratings
-            res.status(200).json(queryResult).send();
+            res.status(200).json(queryResult);
         })
 
     } catch {
@@ -156,7 +156,7 @@ router.get('/history', async (req, res) => {
         queryDB.getHistory(req.body.groupID, async (queryResult) => {
 
             // Return historical list of matches
-            res.status(200).json(queryResult).send();
+            res.status(200).json(queryResult);
         })
 
     } catch {
@@ -172,7 +172,7 @@ router.get('/lastmatch', async (req, res) => {
         queryDB.getLastMatchNum(req.body.groupID, async (queryResult) => {
 
             // Return last match number
-            res.status(200).json({ matchNum : queryResult }).send();
+            res.status(200).json({ matchNum : queryResult });
         })
 
     } catch {

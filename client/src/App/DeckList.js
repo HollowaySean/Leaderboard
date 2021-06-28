@@ -25,8 +25,9 @@ export default function DeckList(props) {
                 case 200:
                     res.json()
                     .then((body) => {
+                        console.log(body);
                         infoList = body;
-                        setIDList(body.deckID);
+                        setIDList(body.length > 0 ? body.deckID : []);
                     });
                     break;
                 default:
@@ -50,6 +51,7 @@ export default function DeckList(props) {
                 case 200:
                     res.json()
                     .then((body) => {
+                        console.log(body);
                         for(let i = 0; i < infoList.length; i++) {
                             infoList[i].deckName = body.deckName[i];
                         }
@@ -67,12 +69,11 @@ export default function DeckList(props) {
             });
         }
 
-        // Fetch 
-
         // Get user list if empty, otherwise grab list of names
+        console.log(idList);
         if(idList === null){
 
-            retrievedDeckList()
+            retrieveDeckList()
         } else if(idList.length === 0){
 
             messageRef.current.innerHTML = "There are no decks in this group.";
@@ -101,7 +102,7 @@ export default function DeckList(props) {
             {infoList
             .map(element => (
                 <tr key={element.deckID}>
-                    <td>{element.deckName}</td>
+                    {/* <td>{element.deckName}</td> */}
                 </tr>
             ))}
         </tbody></table>

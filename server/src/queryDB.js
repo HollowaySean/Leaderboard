@@ -61,7 +61,7 @@ function usersInGroup(groupID, callback) {
 function decksInGroup(groupID, callback) {
 
     // MySQL query
-    db.query('SELECT * FROM `groupDecks` WHERE groupID = ' + mysql.escape(groupID) + ';', 
+    db.query('SELECT * FROM `groupDecks` WHERE groupID IN (' + groupID + ');', 
         function (err, results) {
             if(err) throw err;
 

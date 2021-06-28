@@ -388,7 +388,7 @@ function createGroup(groupName, inviteCode, callback) {
 }
 
 // Create new deck
-function createDeck(deckName, userID) {
+function createDeck(deckName, userID, callback) {
     db.query(
         `INSERT IGNORE INTO decks (deckName, userID) VALUES 
         (` + mysql.escape(deckName) + ', ' + userID + `);`, 

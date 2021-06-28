@@ -125,6 +125,9 @@ export default function DeckList(props) {
 
         if(newDeckRef.current.value === '') { return; }
 
+        console.log(newDeckRef.current.value);
+        console.log(props.userID);
+
         fetch(props.API_ROUTE + '/decks/create', {
             method: 'POST',
             headers: {
@@ -135,12 +138,17 @@ export default function DeckList(props) {
               userID : props.userID
             })
           }).then((res) => {
+
+            console.log("Made it here");
+            console.log(res);
     
             // Handle HTTP status codes
             switch(res.status) {
             case 201:
                 res.json()
                 .then((body) => {
+
+                    console.log("made it here");
                     
                     newDeckRef.current.value = '';
                     messageRef.current.innerHTML = 'Created new deck \'' + body.deckName + '\'';
@@ -161,41 +169,41 @@ export default function DeckList(props) {
 
         function addDeckToGroup(deckID) {
             // Fetch request to add user to group
-        fetch(props.API_ROUTE + '/groups/adddeck', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              groupID : props.groupID,
-              userID : props.userID,
-              deckID : deckID
+            fetch(props.API_ROUTE + '/groups/adddeck', {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                groupID : props.groupID,
+                userID : props.userID,
+                deckID : deckID
+                })
+            }).then((res) => {
+        
+                // Handle HTTP status codes
+                switch(res.status) {
+                case 201:
+                    res.json()
+                    .then((body) => {
+                        
+                        // Force refresh
+                        infoList = [];
+                        setIDList(null)
+                        setNameList([]);
+                        setOwnerList([]);
+
+                    });
+                    break;
+                default:
+                    console.log('Unknown HTTP response: ' + res.status);
+                }
             })
-          }).then((res) => {
-    
-            // Handle HTTP status codes
-            switch(res.status) {
-            case 201:
-                res.json()
-                .then((body) => {
-                    
-                    // Force refresh
-                    infoList = [];
-                    setIDList(null)
-                    setNameList([]);
-                    setOwnerList([]);
+            .catch((error) => {
 
-                });
-                break;
-            default:
-                console.log('Unknown HTTP response: ' + res.status);
-            }
-        })
-        .catch((error) => {
-
-            // Catch HTTP errors
-            messageRef.current.innerHTML = 'Error adding deck to group.';
-        });
+                // Catch HTTP errors
+                messageRef.current.innerHTML = 'Error adding deck to group.';
+            });
         }
 
     }

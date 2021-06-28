@@ -14,7 +14,9 @@ export default function GroupInfo(props) {
                 groupID={props.groupID}/>
             <DeckList
                 API_ROUTE={props.API_ROUTE}
-                groupID={props.groupID}/>
+                groupID={props.groupID}
+                userID={props.userID}
+                />
             <Leaderboard
                 API_ROUTE={props.API_ROUTE}
                 groupID={props.groupID}/>

@@ -125,8 +125,14 @@ function userWithID(userID, callback) {
         function (err, results) {
             if(err) throw err;
 
+            // Pack array of data
+            let users = [];
+            for(let i = 0; i < results.length; i++){
+                users.push(results[i].userName);
+            }
+
             // Send callback after completion
-            callback(results);
+            callback(users);
         }
     );
 }
@@ -139,8 +145,14 @@ function groupWithID(groupID, callback) {
         function (err, results) {
             if(err) throw err;
 
+            // Pack array of data
+            let groups = [];
+            for(let i = 0; i < results.length; i++){
+                groups.push(results[i].groupName);
+            }
+
             // Send callback after completion
-            callback(results);
+            callback(groups);
         }
     );
 }

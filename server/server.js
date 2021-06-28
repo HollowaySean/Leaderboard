@@ -8,11 +8,11 @@ const cors = require('cors');
 app.use(cors());
 
 // Routes
-// const userRouter = require('./routes/users');
-// app.use('/users', userRouter);
+const userRouter = require('./routes/users');
+app.use('/users', userRouter);
 
-// const groupRouter = require('./routes/groups');
-// app.use('/groups', groupRouter);
+const groupRouter = require('./routes/groups');
+app.use('/groups', groupRouter);
 
 app.get('/test', async (req, res) => {
     res.status(201).send('Success!');

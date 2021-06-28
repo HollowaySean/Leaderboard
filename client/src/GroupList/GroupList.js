@@ -1,16 +1,18 @@
 import React, { useRef, useState, useEffect } from 'react'
 
+let infoList = [];
 
 export default function GroupList(props) {
 
     // Set ref hooks
     const messageRef = useRef([]);
+    const newGroupRef = useRef([]);
 
     // Set state variables
-    const [groupList, setGroupList] = useState(null);
-    const [groupNames, setGroupNames] = useState([]);
+    const [idList, setIDList] = useState(null);
+    const [nameList, setNameList] = useState([]);
 
-    // Retrieve group list via fetch
+    // Retrieve group list via useeffect and fetch
     useEffect(() => {
 
         // Fetch list of groups
@@ -22,7 +24,7 @@ export default function GroupList(props) {
                 switch(res.status) {
                 case 200:
                     res.json()
-                    .then((body) => setGroupList(body.groupID));
+                    .then((body) => setIDList(body.groupID));
                     break;
                 default:
                     console.log('Unknown HTTP response: ' + res.status);
@@ -37,7 +39,7 @@ export default function GroupList(props) {
 
         // Fetch group names
         function retrieveGroupNames() {
-            fetch(props.API_ROUTE + '/groups/name?groupID=' + groupList)
+            fetch(props.API_ROUTE + '/groups/info?groupID=' + idList)
             .then((res) => {
         
                 // Handle HTTP status codes
@@ -45,7 +47,9 @@ export default function GroupList(props) {
                 case 200:
                     res.json()
                     .then((body) => {
-                        setGroupNames(body.groupName);
+                        console.log(body.groupName);
+                        infoList = body;
+                        setNameList(body.groupName);
                     });
                     break;
                 default:
@@ -60,10 +64,10 @@ export default function GroupList(props) {
         }
 
         // Get group list if empty, otherwise grab list of names
-        if(groupList === null){
+        if(idList === null){
 
             retrieveGroupList()
-        } else if(groupList.length === 0){
+        } else if(idList.length === 0){
 
             messageRef.current.innerHTML = "You are not a member of any groups.";
         } else {
@@ -72,19 +76,35 @@ export default function GroupList(props) {
             retrieveGroupNames();
         }
 
-     }, [groupList, props.API_ROUTE, props.userID]);
+     }, [idList, props.API_ROUTE, props.userID]);
+
+     function HandleCreateGroup(e) {
+
+        console.log("FINISH THIS AT SOME POINT");
+     }
 
     // Return JSX
     return (
         <>
         <h1>Your Groups:</h1>
-        {groupNames
-        .map(element => (
-            <li key={element.toString()}>
-                {element}
-            </li>
-        ))}
+        <table><tbody>
+            <tr>
+                <th>Name</th>
+                <th>Invite Code</th>
+            </tr>
+            {infoList
+            .map(element => (
+                <tr key={element.groupID}>
+                    <td>{element.groupName}</td>
+                    <td>{element.inviteCode}</td>
+                </tr>
+            ))}
+        </tbody></table>
         <p ref={messageRef}></p>
+        <label htmlFor="newGroupName">Create new group:</label>
+        <br/>
+        <input type="text" ref={newGroupRef}></input>
+        <button onClick={HandleCreateGroup}>Create</button>
         </>
     )
 }

@@ -17,7 +17,7 @@ export default function DeckList(props) {
     useEffect(() => {
 
         // Fetch list of groups
-        async function retrieveDeckList() {
+        function retrieveDeckList() {
             fetch(props.API_ROUTE + '/groups/decks?groupID=' + props.groupID)
             .then((res) => {
         
@@ -79,7 +79,7 @@ export default function DeckList(props) {
                     res.json()
                     .then((body) => {
                         for(let i = 0; i < infoList.length; i++) {
-                            infoList[i].userName = body[i].userName;
+                            infoList[i].userName = body.find(item => { return item.userID == infoList[i].userID}).userName;
                         }
                         setOwnerList(body.userName);
                     });
@@ -96,7 +96,7 @@ export default function DeckList(props) {
         }
 
         // Get user list if empty, otherwise grab list of names
-        if(idList === null){
+        if(idList === null || idList === undefined){
 
             retrieveDeckList()
         } else if(idList.length === 0){
@@ -109,7 +109,7 @@ export default function DeckList(props) {
             retrieveDeckOwners();
         }
 
-    }, [idList, nameList, props.API_ROUTE]);
+    }, [idList, nameList, ownerList, props.API_ROUTE]);
 
     // Callback for changing selected group
     useEffect(() => {
@@ -125,9 +125,6 @@ export default function DeckList(props) {
 
         if(newDeckRef.current.value === '') { return; }
 
-        console.log(newDeckRef.current.value);
-        console.log(props.userID);
-
         fetch(props.API_ROUTE + '/decks/create', {
             method: 'POST',
             headers: {
@@ -138,17 +135,12 @@ export default function DeckList(props) {
               userID : props.userID
             })
           }).then((res) => {
-
-            console.log("Made it here");
-            console.log(res);
     
             // Handle HTTP status codes
             switch(res.status) {
             case 201:
                 res.json()
                 .then((body) => {
-
-                    console.log("made it here");
                     
                     newDeckRef.current.value = '';
                     messageRef.current.innerHTML = 'Created new deck \'' + body.deckName + '\'';
@@ -220,8 +212,8 @@ export default function DeckList(props) {
             {infoList
             .map(element => (
                 <tr key={element.deckID}>
-                    <td>{element.deckName}</td>
                     <td>{element.userName}</td>
+                    <td>{element.deckName}</td>
                 </tr>
             ))}
         </tbody></table>

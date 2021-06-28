@@ -80,8 +80,10 @@ function decksInGroup(groupID, callback) {
 // Get all decks in group
 function decksInUser(userID, callback) {
 
+    console.log(userID);
+
     // MySQL query
-    db.query('SELECT deckID FROM `decks` WHERE userID = ' + mysql.escape(userID) + ';', 
+    db.query('SELECT deckID FROM `decks` WHERE userID = ' + userID + ';', 
         function (err, results) {
             if(err) throw err;
 

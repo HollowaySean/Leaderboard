@@ -96,7 +96,7 @@ router.get('/users', async (req, res) => {
     try {
 
         // Search groupID in database
-        queryDB.usersInGroup(req.body.groupID, async (queryResult) => {
+        queryDB.usersInGroup(req.query.groupID, async (queryResult) => {
 
             // Return list of userID values
             res.status(200).json({ userID : queryResult });

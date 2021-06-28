@@ -6,18 +6,21 @@ import History from './History'
 
 export default function GroupInfo(props) {
 
-    // TODO: USER LIST
-    // TODO: DECK LIST
-    // TODO: LEADERBOARD
-    // TODO: ADD MATCH
-
     if(props.groupID !== null) {
         return(
             <>
-            <UserList />
-            <DeckList />
-            <Leaderboard />
-            <History />
+            <UserList 
+                API_ROUTE={props.API_ROUTE}
+                groupID={props.groupID}/>
+            <DeckList
+                API_ROUTE={props.API_ROUTE}
+                groupID={props.groupID}/>
+            <Leaderboard
+                API_ROUTE={props.API_ROUTE}
+                groupID={props.groupID}/>
+            <History
+                API_ROUTE={props.API_ROUTE}
+                groupID={props.groupID}/>
             </>
         )
     }else{

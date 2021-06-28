@@ -10,7 +10,6 @@ export default function GroupList(props) {
     const inviteRef = useRef([]);
 
     // Set state variables
-    // const [groupSelected, selectGroup] = useState(null);
     const [idList, setIDList] = useState(null);
     const [nameList, setNameList] = useState([]);
 
@@ -168,23 +167,12 @@ export default function GroupList(props) {
         });
     }
 
-    // ???
-    // useEffect(() => {
-    //     props.groupCallback(groupSelected);
-    // }, [groupSelected]);
-
     // Callback function to handle joining a new group
      function HandleJoinGroup(e) {
         messageRef.current.innerHTML = '';
         joinGroup(inviteRef.current.value);
         inviteRef.current.value = '';
     }
-
-    // Callback function to handle selecting a group
-    // function HandleSelectGroup(groupID) {
-    //     selectGroup(groupID);
-    //     props.groupIDCallback(groupID);
-    // }
 
     // Return JSX
     return (

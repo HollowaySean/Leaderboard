@@ -102,8 +102,8 @@ router.get('/names', async (req, res) => {
         // Search userID in database
         queryDB.userWithID(req.query.userID, (queryResult) => {
 
-            // Return list of deckID values
-            res.status(200).json({ deckID : queryResult });
+            // Return list of user names
+            res.status(200).json({ userName : queryResult });
         })
 
     } catch {

@@ -43,7 +43,6 @@ function App(props) {
   // Callback function to choose group to examine
   function groupChosen(newGroupID) {
     setGroupID(newGroupID);
-    console.log("made it here");
   }
 
   // JSX return

@@ -112,7 +112,7 @@ router.get('/decks', async (req, res) => {
     try {
 
         // Search groupID in database
-        queryDB.decksInGroup(req.body.groupID, async (queryResult) => {
+        queryDB.decksInGroup(req.query.groupID, async (queryResult) => {
 
             // Return list of userID values
             res.status(200).json(queryResult);
@@ -128,7 +128,7 @@ router.get('/ranking', async (req, res) => {
     try {
 
         // Search groupID in database
-        queryDB.getLeaderboard(req.body.groupID, async (queryResult) => {
+        queryDB.getLeaderboard(req.query.groupID, async (queryResult) => {
 
             let sortedList = queryResult.sortByRating();
             for(let i = 0; i < sortedList.length; i++) {
@@ -154,7 +154,7 @@ router.get('/audit', async (req, res) => {
     try {
 
         // Search groupID in database
-        queryDB.getHistory(req.body.groupID, async (queryResult) => {
+        queryDB.getHistory(req.query.groupID, async (queryResult) => {
 
             // Return audit list of decks and ratings
             res.status(200).json(queryResult);
@@ -170,7 +170,7 @@ router.get('/history', async (req, res) => {
     try {
 
         // Search groupID in database
-        queryDB.getHistory(req.body.groupID, async (queryResult) => {
+        queryDB.getHistory(req.query.groupID, async (queryResult) => {
 
             // Return historical list of matches
             res.status(200).json(queryResult);

@@ -125,14 +125,8 @@ function userWithID(userID, callback) {
         function (err, results) {
             if(err) throw err;
 
-            // Pack array of data
-            let users = [];
-            for(let i = 0; i < results.length; i++){
-                users.push(results[i].userName);
-            }
-
             // Send callback after completion
-            callback(users);
+            callback(results);
         }
     );
 }

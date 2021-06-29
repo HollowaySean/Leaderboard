@@ -85,7 +85,7 @@ export default function UserList(props) {
 
     // Return JSX
     return (
-        <>
+        <div>
         <h1>Users:</h1>
         <table><tbody>
             <tr>
@@ -99,6 +99,6 @@ export default function UserList(props) {
             ))}
         </tbody></table>
         <p ref={messageRef}></p>
-        </>
+        </div>
     )
 }

@@ -68,7 +68,7 @@ router.get('/groups', async (req, res) => {
     try {
 
         // Search userID in database
-        queryDB.groupsWithUser(req.query.userID, (queryResult) => {
+        queryDB.groupsWithUser(req.query.userID, async (queryResult) => {
 
             // Return list of groupID values
             res.status(200).json(queryResult);
@@ -84,7 +84,7 @@ router.get('/decks', async (req, res) => {
     try {
 
         // Search userID in database
-        queryDB.decksInUser(req.query.userID, (queryResult) => {
+        queryDB.decksInUser(req.query.userID, async (queryResult) => {
 
             // Return list of deckID values
             res.status(200).json({ deckID : queryResult });
@@ -100,7 +100,7 @@ router.get('/names', async (req, res) => {
     try {
 
         // Search userID in database
-        queryDB.userWithID(req.query.userID, (queryResult) => {
+        queryDB.userWithID(req.query.userID, async (queryResult) => {
 
             // Return list of user names
             res.status(200).json(queryResult);

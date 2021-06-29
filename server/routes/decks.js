@@ -26,7 +26,7 @@ router.post('/create', async (req, res) => {
     try {
 
         // Search userID in database
-        queryDB.createDeck(req.body.deckName, req.body.userID, (queryResult) => {
+        queryDB.createDeck(req.body.deckName, req.body.userID, async (queryResult) => {
             
             // Return list of user names
             res.status(201).json({

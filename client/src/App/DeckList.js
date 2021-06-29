@@ -12,6 +12,7 @@ export default function DeckList(props) {
     const [idList, setIDList] = useState(null);
     const [nameList, setNameList] = useState([]);
     const [ownerList, setOwnerList] = useState([]);
+    const [infoListString, setInfoList] = useState('');
 
     // Retrieve user list via useeffect and fetch
     useEffect(() => {
@@ -79,7 +80,7 @@ export default function DeckList(props) {
                     res.json()
                     .then((body) => {
                         for(let i = 0; i < infoList.length; i++) {
-                            infoList[i].userName = body.find(item => { return item.userID == infoList[i].userID}).userName;
+                            infoList[i].userName = body.find(item => { return item.userID === infoList[i].userID}).userName;
                         }
                         setOwnerList(body.userName);
                     });
@@ -96,7 +97,7 @@ export default function DeckList(props) {
         }
 
         // Get user list if empty, otherwise grab list of names
-        if(idList === null || idList === undefined){
+        if(idList === null){
 
             retrieveDeckList()
         } else if(idList.length === 0){
@@ -113,12 +114,23 @@ export default function DeckList(props) {
 
     // Callback for changing selected group
     useEffect(() => {
+        console.log('groupID effect');
         messageRef.current.innerHTML = '';
         infoList = [];
         setIDList(null)
         setNameList([]);
         setOwnerList([]);
     }, [props.groupID]);
+
+    useEffect(() => {
+        console.log('List effect');
+        setInfoList(JSON.stringify(infoList));
+    }, [idList, nameList, ownerList]);
+
+    useEffect(() => {
+        console.log('List string effect');
+        props.deckListCallback(infoListString);
+    }, [infoListString])
 
     // Callback funciton to handle creating a new deck
     function HandleCreateDeck(e) {
@@ -202,7 +214,7 @@ export default function DeckList(props) {
 
     // Return JSX
     return (
-        <>
+        <div>
         <h1>Decks:</h1>
         <table><tbody>
             <tr>
@@ -222,6 +234,6 @@ export default function DeckList(props) {
         <br/>
         <input type="text" ref={newDeckRef}></input>
         <button onClick={HandleCreateDeck}>Create</button>
-        </>
+        </div>
     )
 }

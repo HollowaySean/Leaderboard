@@ -204,7 +204,7 @@ router.post('/newmatch', async(req, res) => {
         // Get DeckInfo objects
         let deckList = req.body.results.map(element => element.deckID);
         queryDB.getDeckInfo(req.body.groupID, deckList, 
-            (deckInfoList) => {
+            async (deckInfoList) => {
                 
                 // Set isWinner values for resulting decklist
                 for(let i = 0; i < deckInfoList.length; i++ ) {

@@ -9,6 +9,8 @@ router.use(express.json());
 router.post('/create', async (req, res) => {
     try {
 
+        console.log('in fetch route');
+
         // Generate invite code for group
         let inviteCode = '';
         for(let i = 0; i < 5; i++) {
@@ -16,9 +18,17 @@ router.post('/create', async (req, res) => {
             inviteCode += String.fromCharCode(newCharCode);
         }
         
+        console.log('made invite code: ' + inviteCode);
+
+        console.log('request:');
+        console.log(req);
+
         // Create new group and return group info
         queryDB.createGroup(req.body.groupName, inviteCode, 
             (queryResult) => {
+
+                console.log('Successfully queried');
+                console.log(queryResult);
 
                 res.status(201).json({ 
                     groupID     : queryResult[0].groupID,
@@ -28,6 +38,7 @@ router.post('/create', async (req, res) => {
             });
         
     } catch {
+        console.log('fetch route failed');
         res.status(500).send();
     }
 });

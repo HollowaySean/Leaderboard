@@ -359,31 +359,15 @@ function createUser(userName, hash) {
 // Create new group
 function createGroup(groupName, inviteCode, callback) {
 
-    console.log('made it into query');
-    console.log(groupName);
-    console.log(inviteCode);
-
     // MySQL query
     db.query(
         `INSERT IGNORE INTO groups (groupName, inviteCode) VALUES
         (` + mysql.escape(groupName) + ', ' + mysql.escape(inviteCode) + `);`, 
         (err, results) => {
-
-            console.log('made it into first callback, see error and response:');
-            console.log(err);
-            console.log(results);
-
             if(err) throw err;
 
-            // Return groupID after insert
-            db.query(`SELECT MAX(groupID) AS groupID FROM groups;`, (err, results) => {
-                console.log('made it into second callback, see error and response');
-                console.log(err);
-                console.log(results);
-
-                if(err) throw err;
-                callback(results);
-            });
+            // New id contained in insertID
+            callback(results);
         });
 }
 
@@ -394,11 +378,8 @@ function createDeck(deckName, userID, callback) {
         (` + mysql.escape(deckName) + ', ' + userID + `);`, 
         (err, results) => {
             if(err) throw err;
-
-            // Return deckID after insert
-            db.query(`SELECT MAX(deckID) AS deckID FROM decks;`, (err, results) => {
-                callback(results);
-            });
+            
+            callback(results);
         });
 }
 

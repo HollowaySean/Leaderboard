@@ -30,7 +30,7 @@ router.post('/create', async (req, res) => {
             
             // Return list of user names
             res.status(201).json({
-                deckID      : queryResult[0].deckID,
+                deckID      : queryResult.insertID,
                 deckName    : req.body.deckName,
                 userID      : req.body.userID
             });

@@ -21,7 +21,7 @@ function App(props) {
     if("userID" in localStorage && !checkedLogin) {
       let newUserID = parseInt(localStorage.getItem("userID"));
       checkedLogin = true;
-      loginComplete(newUserID, true);
+      loginComplete(newUserID, false);
     }
   }, []);
 

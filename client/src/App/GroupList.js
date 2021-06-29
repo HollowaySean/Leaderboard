@@ -20,8 +20,6 @@ export default function GroupList(props) {
         // Fetch list of groups
         async function retrieveGroupList() {
 
-            console.log('retrieving group list');
-
             fetch(props.API_ROUTE + '/users/groups?userID=' + props.userID)
             .then((res) => {
         
@@ -46,8 +44,6 @@ export default function GroupList(props) {
 
         // Fetch group names
         function retrieveGroupNames() {
-
-            console.log('retrieving group names');
 
             fetch(props.API_ROUTE + '/groups/info?groupID=' + idList)
             .then((res) => {
@@ -90,14 +86,9 @@ export default function GroupList(props) {
     // Callback function to handle creating a new group
     function HandleCreateGroup(e) {
 
-        console.log('In create group method');
-        console.log(newGroupRef.current.value);
-
         if(newGroupRef.current.value === '') {return;}
-
-        console.log('Past value check');
-
         fetch(props.API_ROUTE + '/groups/create', {
+            crossDomain: true,
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -106,16 +97,12 @@ export default function GroupList(props) {
               groupName: newGroupRef.current.value
             })
           }).then((res) => {
-
-            console.log('in response');
     
             // Handle HTTP status codes
             switch(res.status) {
             case 201:
                 res.json()
                 .then((body) => {
-
-                    console.log('Status 201');
                     
                     newGroupRef.current.value = '';
                     messageRef.current.innerHTML = 'Created new group \'' + body.groupName + '\'';
@@ -125,23 +112,18 @@ export default function GroupList(props) {
                 });
                 break;
             default:
-                console.log('Status unknown');
                 console.log('Unknown HTTP response: ' + res.status);
             }
         })
         .catch((error) => {
 
             // Catch HTTP errors
-                console.log('Error caught');
-                console.log(error);
             messageRef.current.innerHTML = 'Error creating group.';
         });
     }
 
     // Direct function to handle joining a new group
     function joinGroup(inviteCode) {
-
-        console.log('made it to joingroup')
 
         // Check validity
         if(inviteCode.length !== 5) {
@@ -151,6 +133,7 @@ export default function GroupList(props) {
         
         // Fetch request to add user to group
         fetch(props.API_ROUTE + '/groups/adduser', {
+            crossDomain: true,
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -214,7 +197,7 @@ export default function GroupList(props) {
                         </tr>
                     ))}
                 </tbody></table>
-                <form>
+                {/* <form> */}
                     <div className="labelButton">
                         <label htmlFor={newGroupRef}>Create new group:</label>
                         <input type="text" ref={newGroupRef}></input>
@@ -225,7 +208,7 @@ export default function GroupList(props) {
                         <input type="text" ref={inviteRef}></input>
                         <button onClick={HandleJoinGroup}>Create</button>
                     </div>
-                </form>
+                {/* </form> */}
                 <p ref={messageRef}></p>
             </div>
         </div>

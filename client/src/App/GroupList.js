@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react'
+import '../Styles/panel.css'
 
 let infoList = [];
 
@@ -177,31 +178,36 @@ export default function GroupList(props) {
 
     // Return JSX
     return (
-        <>
-        <h1>Your Groups:</h1>
-        <table><tbody>
-            <tr>
-                <th>Name</th>
-                <th>Invite Code</th>
-            </tr>
-            {infoList
-            .map(element => (
-                <tr key={element.groupID}>
-                    <td onClick={() => props.groupIDCallback(element.groupID)}>{element.groupName}</td>
-                    <td>{element.inviteCode}</td>
-                </tr>
-            ))}
-        </tbody></table>
-        <p ref={messageRef}></p>
-        <label htmlFor={newGroupRef}>Create new group:</label>
-        <br/>
-        <input type="text" ref={newGroupRef}></input>
-        <button onClick={HandleCreateGroup}>Create</button>
-        <br />
-        <label htmlFor={inviteRef}>Join group by invite code:</label>
-        <br/>
-        <input type="text" ref={inviteRef}></input>
-        <button onClick={HandleJoinGroup}>Create</button>
-        </>
+        <div className="panel">
+            <h1>Your Groups</h1>
+            <div className="panel-body">
+                <table><tbody>
+                    <tr>
+                        <th>Name</th>
+                        <th>Invite Code</th>
+                    </tr>
+                    {infoList
+                    .map(element => (
+                        <tr key={element.groupID}>
+                            <td id="clickable" onClick={() => props.groupIDCallback(element.groupID)}>{element.groupName}</td>
+                            <td>{element.inviteCode}</td>
+                        </tr>
+                    ))}
+                </tbody></table>
+                <form>
+                    <div className="labelButton">
+                        <label htmlFor={newGroupRef}>Create new group:</label>
+                        <input type="text" ref={newGroupRef}></input>
+                        <button onClick={HandleCreateGroup}>Create</button>
+                    </div>
+                    <div className="labelButton">
+                        <label htmlFor={inviteRef}>Join group by invite code:</label>
+                        <input type="text" ref={inviteRef}></input>
+                        <button onClick={HandleJoinGroup}>Create</button>
+                    </div>
+                </form>
+                <p ref={messageRef}></p>
+            </div>
+        </div>
     )
 }

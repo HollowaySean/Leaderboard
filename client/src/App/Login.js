@@ -1,5 +1,5 @@
 import React, { useRef } from 'react'
-
+import '../Styles/panel.css'
 
 export default function Login(props) {
 
@@ -100,23 +100,25 @@ export default function Login(props) {
 
   // JSX return
   return (
-    <div>
-    <h1>Login:</h1>
-    <form>
-      <label htmlFor="username">Username</label>
-      <input ref={usernameRef} type="text" name="username" autoComplete="username"/>
-      <br />
-      <label htmlFor="password">Password</label>
-      <input ref={passwordRef} type="password" name="password" autoComplete="current-password"></input>
-    </form>
-    <br />
-    <label htmlFor="rememberMe">Stay logged in</label>
-    <input type="checkbox" ref={rememberRef} />
-    <br />
-    <button onClick={handleLogin}>Log in</button>
-    <button onClick={handleCreateUser}>Sign up</button>
-    <br />
-    <p ref={messageRef}></p>
+    <div className="panel">
+      <h1>Login</h1>
+      <div className="panel-body">
+        <form>
+          <label htmlFor="username">Username</label>
+          <input ref={usernameRef} type="text" name="username" autoComplete="username"/>
+          <label htmlFor="password">Password</label>
+          <input ref={passwordRef} type="password" name="password" autoComplete="current-password"></input>
+        </form>
+        <div className="rememberMe">
+          <input type="checkbox" ref={rememberRef} name="rememberMe"/>
+          <label htmlFor="rememberMe">Stay logged in </label>
+        </div>
+        <div className="loginButtons">
+          <button onClick={handleLogin}>Log in</button>
+          <button onClick={handleCreateUser}>Sign up</button>
+        </div>
+        <p ref={messageRef}></p>
+      </div>
     </div>
   )
 }

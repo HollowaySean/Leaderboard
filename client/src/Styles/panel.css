@@ -1,0 +1,103 @@
+html, body {
+    margin: 0;
+    height: 80%;
+    display: grid;
+    place-items: center;
+    background-color: white;
+}
+
+.panel {
+    font-size: 1.5em;
+    background-color :white;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    border: solid black 1px;
+    border-radius: 2%;
+    padding: 0px;
+    padding-top: 0px;
+    box-shadow: 2px 2px 2px gray;
+    overflow: hidden;
+}
+
+.panel > h1 {
+    margin: 0px;
+    background-color:rgb(26, 75, 221);
+    color: white;
+    font-weight: normal;
+    padding-left: 10px;
+    padding-bottom: 5px;
+    margin-bottom: 20px;
+    min-width: 400px;
+}
+
+form > input, form > label {
+    display: block;
+}
+
+form > input {
+    margin-bottom: 10px;
+}
+
+input[type="text"], input[type="password"] {
+    font-size:1em;
+}
+
+.panel-body {
+    display: flex;
+    flex-direction: column;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+#clickable {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+td {
+    font-size: 0.8em;
+    min-width: 100px;
+    text-align: center;
+}
+
+.panel-body > table {
+    margin: 0px;
+    table-layout: auto;
+}
+
+.rememberMe {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.rememberMe > * {
+    margin-right: 10px;
+}
+
+.rememberMe > input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+}
+
+button {
+    font-size: 0.75em;
+    height: 2em;
+    margin-right: 20px;
+    background-color: white;
+    border-radius: 8%;
+}
+
+.labelButton {
+    display: flex;
+    flex-direction: column;
+    max-width: 80%;
+    margin-top: 20px;
+}
+
+.labelButton > button {
+    margin-top: 5px;
+}
+
+.labelButton > button {
+    width: 50%;
+}

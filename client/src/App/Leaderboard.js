@@ -15,7 +15,7 @@ export default function Leaderboard(props) {
         leaderboardInfo = null;
     }else{
         messageRef.current.innerHTML = '';
-        let rating = (mu, sigma) => mu - 3*sigma
+        let rating = (mu, sigma) => mu - 3*sigma;
         let sortedList = infoList.sort((a, b) => (rating(a.mu, a.sigma) > rating(b.mu, b.sigma) ? -1 : 1));
         leaderboardInfo = 
             (sortedList.map(element => (

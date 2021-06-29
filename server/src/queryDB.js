@@ -332,21 +332,6 @@ function getHistory(groupID, callback) {
             if(err) throw err;
 
             callback(results);
-            // // Pack class of leaderboard data
-            // let history = new GroupMatchInfo();
-            // let deckIDList = [];
-            // for(let i = 0; i < results.length; i++){
-            //     history.addMatch(new MatchInfo(
-            //         results[i].matchNum, 
-            //         results[i].deckID, 
-            //         results[i].newRating)
-            //     );
-            //     deckIDList.push(results[i].deckID);
-            // }
-            // history.deckIDList = [...new Set(deckIDList)];
-
-            // // Send callback after completion
-            // callback(history);
         });
 }
 

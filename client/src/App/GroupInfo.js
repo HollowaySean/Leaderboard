@@ -4,7 +4,6 @@ import DeckList from './DeckList'
 import Leaderboard from './Leaderboard'
 import History from './History'
 
-
 export default function GroupInfo(props) {
 
     // State hooks

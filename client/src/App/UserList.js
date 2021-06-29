@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react'
+import '../Styles/panel.css'
 
 let infoList = [];
 
@@ -85,20 +86,24 @@ export default function UserList(props) {
 
     // Return JSX
     return (
-        <div>
-        <h1>Users:</h1>
-        <table><tbody>
-            <tr>
-                <th>Name</th>
-            </tr>
-            {infoList
-            .map(element => (
-                <tr key={element.userID}>
-                    <td>{element.userName}</td>
-                </tr>
-            ))}
-        </tbody></table>
-        <p ref={messageRef}></p>
+        <div className="panel">
+            <h1>Users</h1>
+            <div className="panel-body">
+                <div className="panel-table">
+                    <table><tbody>
+                        <tr>
+                            <th>Name</th>
+                        </tr>
+                        {infoList
+                        .map(element => (
+                            <tr key={element.userID}>
+                                <td>{element.userName}</td>
+                            </tr>
+                        ))}
+                    </tbody></table>
+                </div>
+                <p ref={messageRef}></p>
+            </div>
         </div>
     )
 }

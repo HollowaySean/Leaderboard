@@ -48,26 +48,28 @@ function App(props) {
   // JSX return
   if(isLoggedIn) {
     return (
-    <div>
-    <GroupList 
-      API_ROUTE={props.API_ROUTE} 
-      userID={userID}
-      groupIDCallback={groupChosen}
-    />
-    <GroupInfo
-      API_ROUTE={props.API_ROUTE}
-      groupID={groupID}
-      userID={userID}
-    />
+    <div className="panel-container">
+      <GroupList 
+        API_ROUTE={props.API_ROUTE} 
+        userID={userID}
+        groupIDCallback={groupChosen}
+      />
+      <GroupInfo
+        API_ROUTE={props.API_ROUTE}
+        groupID={groupID}
+        userID={userID}
+      />
     </div>
     )
 
   }else{
     return ( 
-    <Login 
-      API_ROUTE={props.API_ROUTE} 
-      loginCallback={loginComplete}
-    />
+    <div className="panel-container">
+      <Login 
+        API_ROUTE={props.API_ROUTE} 
+        loginCallback={loginComplete}
+      />
+    </div>
     )
   }
 }

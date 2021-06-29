@@ -17,22 +17,24 @@ export default function GroupInfo(props) {
     if(props.groupID !== null) {
         return(
             <>
-            <UserList 
-                API_ROUTE={props.API_ROUTE}
-                groupID={props.groupID}/>
-            <DeckList
-                API_ROUTE={props.API_ROUTE}
-                groupID={props.groupID}
-                userID={props.userID}
-                deckListCallback={updateDeckList}
-                />
+            <div className="panel-v-container">
+                <UserList 
+                    API_ROUTE={props.API_ROUTE}
+                    groupID={props.groupID}/>
+                <DeckList
+                    API_ROUTE={props.API_ROUTE}
+                    groupID={props.groupID}
+                    userID={props.userID}
+                    deckListCallback={updateDeckList}/>
+            </div>
             <Leaderboard
                 API_ROUTE={props.API_ROUTE}
                 groupID={props.groupID}
                 deckList={deckList}/>
             <History
                 API_ROUTE={props.API_ROUTE}
-                groupID={props.groupID}/>
+                groupID={props.groupID}
+                deckList={deckList}/>
             </>
         )
     }else{

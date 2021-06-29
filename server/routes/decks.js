@@ -26,11 +26,11 @@ router.post('/create', async (req, res) => {
     try {
 
         // Search userID in database
-        queryDB.createDeck(req.body.deckName, req.body.userID, async (queryResult) => {
+        queryDB.createDeck(req.body.deckName, req.body.userID, (queryResult) => {
             
             // Return list of user names
             res.status(201).json({
-                deckID      : queryResult.insertID,
+                deckID      : queryResult.insertId,
                 deckName    : req.body.deckName,
                 userID      : req.body.userID
             });

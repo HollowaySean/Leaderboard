@@ -180,11 +180,13 @@ export default function DeckList(props) {
                 'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                groupID : props.groupID,
-                userID : props.userID,
-                deckID : deckID
+                    groupID : props.groupID,
+                    userID : props.userID,
+                    deckID : deckID
                 })
             }).then((res) => {
+
+                console.log("here");
         
                 // Handle HTTP status codes
                 switch(res.status) {
@@ -211,26 +213,31 @@ export default function DeckList(props) {
 
     // Return JSX
     return (
-        <div>
-        <h1>Decks:</h1>
-        <table><tbody>
-            <tr>
-                <th>Owner</th>
-                <th>Name</th>
-            </tr>
-            {infoList
-            .map(element => (
-                <tr key={element.deckID}>
-                    <td>{element.userName}</td>
-                    <td>{element.deckName}</td>
-                </tr>
-            ))}
-        </tbody></table>
-        <p ref={messageRef}></p>
-        <label htmlFor={newDeckRef}>Create new deck:</label>
-        <br/>
-        <input type="text" ref={newDeckRef}></input>
-        <button onClick={HandleCreateDeck}>Create</button>
+        <div className="panel">
+            <h1>Decks</h1>
+            <div className="panel-body">
+                <div className="panel-table">
+                    <table><tbody>
+                    <tr>
+                        <th>Owner</th>
+                        <th>Name</th>
+                    </tr>
+                        {infoList
+                        .map(element => (
+                            <tr key={element.deckID}>
+                                <td>{element.userName}</td>
+                                <td>{element.deckName}</td>
+                            </tr>
+                        ))}
+                        </tbody></table>
+                    </div>
+                <p ref={messageRef}></p>
+                <div className="labelButton">
+                    <label htmlFor={newDeckRef}>Create new deck:</label>
+                    <input type="text" ref={newDeckRef}></input>
+                    <button onClick={HandleCreateDeck}>Create</button>
+                </div>
+            </div>
         </div>
     )
 }

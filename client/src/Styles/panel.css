@@ -1,9 +1,17 @@
 html, body {
-    margin: 0;
-    height: 80%;
-    display: grid;
-    place-items: center;
+    /* margin: 0;
+    height: 80%; */
+    /* display: grid;
+    place-items: center; */
     background-color: white;
+}
+
+.panel-container {
+    width: 100vw;
+    height: 90vh;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .panel {
@@ -13,9 +21,25 @@ html, body {
     border: solid black 1px;
     border-radius: 2%;
     padding: 0px;
-    padding-top: 0px;
     box-shadow: 2px 2px 2px gray;
     overflow: hidden;
+    margin: 20px;
+    padding-bottom: 20px;
+    flex: 0 1 400px;
+    width: auto;
+    height: 100%;
+}
+
+.panel-v-container {
+    height: 100%;
+}
+
+.panel-v-container > .panel {
+    height: auto;
+}
+
+#double {
+    flex: 0 1 800px !important;
 }
 
 .panel > h1 {
@@ -100,4 +124,24 @@ button {
 
 .labelButton > button {
     width: 50%;
+}
+
+.panel-table {
+    display: flex; 
+    flex-direction: row;
+    justify-content: center;
+    height: auto;
+    width: inherit;
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+.panel-v-container > .panel > .panel-body > .panel-table {
+    display: flex; 
+    flex-direction: row;
+    justify-content: center;
+    height: auto;
+    width: inherit;
+    max-height: 30vh;
+    overflow-y: auto;
 }

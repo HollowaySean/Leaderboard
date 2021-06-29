@@ -20,11 +20,10 @@ router.post('/create', async (req, res) => {
             (queryResult) => {
 
                 res.status(201).json({ 
-                    groupID     : queryResult.insertID,
+                    groupID     : queryResult.insertId,
                     groupName   : req.body.groupName,
                     inviteCode  : inviteCode 
                     });
-                res.status(201).send('status sent');
             });
         
     } catch {
@@ -63,7 +62,6 @@ router.post('/adduser', async (req, res) => {
 
 // Add deck to group
 router.post('/adddeck', async (req, res) => {
-    
     try {
     
         // Add deck to groupDecks database

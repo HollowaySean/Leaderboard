@@ -78,6 +78,7 @@ export default function GroupList(props) {
         } else {
 
             // Get group names in this case
+            messageRef.current.innerHTML = '';
             retrieveGroupNames();
         }
 
@@ -184,20 +185,21 @@ export default function GroupList(props) {
         <div className="panel">
             <h1>Your Groups</h1>
             <div className="panel-body">
-                <table><tbody>
-                    <tr>
-                        <th>Name</th>
-                        <th>Invite Code</th>
-                    </tr>
-                    {infoList
-                    .map(element => (
-                        <tr key={element.groupID}>
-                            <td id="clickable" onClick={() => props.groupIDCallback(element.groupID)}>{element.groupName}</td>
-                            <td>{element.inviteCode}</td>
+                <div className="panel-table">
+                    <table><tbody>
+                        <tr>
+                            <th>Name</th>
+                            <th>Invite Code</th>
                         </tr>
-                    ))}
-                </tbody></table>
-                {/* <form> */}
+                        {infoList
+                        .map(element => (
+                            <tr key={element.groupID}>
+                                <td id="clickable" onClick={() => props.groupIDCallback(element.groupID)}>{element.groupName}</td>
+                                <td>{element.inviteCode}</td>
+                            </tr>
+                        ))}
+                    </tbody></table>
+                </div>
                     <div className="labelButton">
                         <label htmlFor={newGroupRef}>Create new group:</label>
                         <input type="text" ref={newGroupRef}></input>
@@ -208,7 +210,6 @@ export default function GroupList(props) {
                         <input type="text" ref={inviteRef}></input>
                         <button onClick={HandleJoinGroup}>Create</button>
                     </div>
-                {/* </form> */}
                 <p ref={messageRef}></p>
             </div>
         </div>

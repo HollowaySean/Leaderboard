@@ -12,7 +12,6 @@ export default function DeckList(props) {
     const [idList, setIDList] = useState(null);
     const [nameList, setNameList] = useState([]);
     const [ownerList, setOwnerList] = useState([]);
-    const [infoListString, setInfoList] = useState('');
 
     // Retrieve user list via useeffect and fetch
     useEffect(() => {
@@ -96,6 +95,12 @@ export default function DeckList(props) {
             });
         }
 
+        // Async function to update other parts
+        async function updateDeckNameAndOwners() {
+            retrieveDeckNames();
+            retrieveDeckOwners();
+        }
+
         // Get user list if empty, otherwise grab list of names
         if(idList === null){
 
@@ -106,33 +111,28 @@ export default function DeckList(props) {
         } else {
 
             // Get user names in this case
-            retrieveDeckNames();
-            retrieveDeckOwners();
+            updateDeckNameAndOwners()
+            .then(() => props.deckListCallback(JSON.stringify(infoList)));
         }
 
     }, [idList, nameList, ownerList, props.API_ROUTE]);
 
-    // Callback for changing selected group
-    useEffect(() => {
-        console.log('groupID effect');
+    // Function to reset states
+    function resetStates() {
         messageRef.current.innerHTML = '';
         infoList = [];
         setIDList(null)
         setNameList([]);
         setOwnerList([]);
+    }
+
+    // Callback for changing selected group
+    useEffect(() => {
+        resetStates();
+        props.deckListCallback('');
     }, [props.groupID]);
 
-    useEffect(() => {
-        console.log('List effect');
-        setInfoList(JSON.stringify(infoList));
-    }, [idList, nameList, ownerList]);
-
-    useEffect(() => {
-        console.log('List string effect');
-        props.deckListCallback(infoListString);
-    }, [infoListString])
-
-    // Callback funciton to handle creating a new deck
+    // Callback function to handle creating a new deck
     function HandleCreateDeck(e) {
 
         if(newDeckRef.current.value === '') { return; }
@@ -171,6 +171,7 @@ export default function DeckList(props) {
             messageRef.current.innerHTML = 'Error creating deck.';
         });
 
+        // Callback function to add deck to group
         function addDeckToGroup(deckID) {
             // Fetch request to add user to group
             fetch(props.API_ROUTE + '/groups/adddeck', {
@@ -192,11 +193,7 @@ export default function DeckList(props) {
                     .then((body) => {
                         
                         // Force refresh
-                        infoList = [];
-                        setIDList(null)
-                        setNameList([]);
-                        setOwnerList([]);
-
+                        resetStates();
                     });
                     break;
                 default:

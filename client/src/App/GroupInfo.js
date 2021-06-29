@@ -1,17 +1,18 @@
-import React from 'react'
+import React, { useState } from 'react'
 import UserList from './UserList'
 import DeckList from './DeckList'
 import Leaderboard from './Leaderboard'
 import History from './History'
 
-let deckList = [];
 
 export default function GroupInfo(props) {
 
+    // State hooks
+    const [deckList, setDeckList] = useState([]);
+
     // Callback to update deckList for easy use
     function updateDeckList(newDeckList) {
-        console.log("Updating deck list");
-        deckList = newDeckList;
+        setDeckList(newDeckList);
     }
 
     if(props.groupID !== null) {

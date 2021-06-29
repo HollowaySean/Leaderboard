@@ -74,7 +74,7 @@ export default function UserList(props) {
             retrieveUserNames();
         }
 
-    }, [idList, nameList, props.API_ROUTE]);
+    }, [idList, nameList, props.API_ROUTE, props.groupID]);
 
     useEffect(() => {
         messageRef.current.innerHTML = '';

@@ -13,6 +13,12 @@ export default function DeckList(props) {
     const [nameList, setNameList] = useState([]);
     const [ownerList, setOwnerList] = useState([]);
 
+    useEffect(() => {
+    if(props.needUpdate) {
+        resetStates();
+    }
+    }, [props.needUpdate]);
+
     // Retrieve user list via useeffect and fetch
     useEffect(() => {
 

@@ -63,7 +63,7 @@ export default function Dropdown(props) {
                         {props.optionList.map( (element, index) =>
                             <button 
                                 key={index} 
-                                onClick={() => HandleChoice(index)}
+                                onClick={() => HandleChoice(index, props.myKey)}
                                 style={buttonStyle}
                             >{element}</button>
                         )}

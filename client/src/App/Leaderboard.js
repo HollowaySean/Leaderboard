@@ -47,6 +47,9 @@ export default function Leaderboard(props) {
                 <p ref={messageRef}></p>
                 <AddMatch 
                     deckList={props.deckList}
+                    API_ROUTE={props.API_ROUTE}
+                    groupID={props.groupID}
+                    updateCallback={props.updateCallback}
                 />
             </div>
         </div>

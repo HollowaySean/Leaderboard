@@ -89,7 +89,6 @@ export default function GroupList(props) {
 
         if(newGroupRef.current.value === '') {return;}
         fetch(props.API_ROUTE + '/groups/create', {
-            crossDomain: true,
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -134,7 +133,6 @@ export default function GroupList(props) {
         
         // Fetch request to add user to group
         fetch(props.API_ROUTE + '/groups/adduser', {
-            crossDomain: true,
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -147,23 +145,23 @@ export default function GroupList(props) {
     
             // Handle HTTP status codes
             switch(res.status) {
-            case 201:
-                res.json()
-                .then((body) => {
-                    
-                    infoList.push(body);
-                    var joinedNames = [nameList, body.groupName];
-                    setNameList(joinedNames);
-                    newGroupRef.current.value = '';
+                case 201:
+                    res.json()
+                    .then((body) => {
+                        
+                        infoList.push(body);
+                        var joinedNames = [nameList, body.groupName];
+                        setNameList(joinedNames);
+                        newGroupRef.current.value = '';
 
-                    messageRef.current.innerHTML += '<br />Added user to group \'' + body.groupName + '\'';
-                });
-                break;
-            case 400:
-                messageRef.current.innerHTML = 'No group found with invite code.'
-                break;
-            default:
-                console.log('Unknown HTTP response: ' + res.status);
+                        messageRef.current.innerHTML += '<br />Added user to group \'' + body.groupName + '\'';
+                    });
+                    break;
+                case 400:
+                    messageRef.current.innerHTML = 'No group found with invite code.'
+                    break;
+                default:
+                    console.log('Unknown HTTP response: ' + res.status);
             }
         })
         .catch((error) => {
@@ -200,6 +198,7 @@ export default function GroupList(props) {
                         ))}
                     </tbody></table>
                 </div>
+                    <p ref={messageRef}></p>
                     <div className="labelButton">
                         <label htmlFor={newGroupRef}>Create new group:</label>
                         <input type="text" ref={newGroupRef}></input>
@@ -210,7 +209,6 @@ export default function GroupList(props) {
                         <input type="text" ref={inviteRef}></input>
                         <button onClick={HandleJoinGroup}>Create</button>
                     </div>
-                <p ref={messageRef}></p>
             </div>
         </div>
     )

@@ -4,6 +4,11 @@ import { LineChart, XAxis, YAxis, Tooltip, Line, Legend, CartesianGrid, Responsi
 
 let history = [];
 let series = null;
+let dataLim = [0, 0];
+
+let colorList = [
+    '#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142F'
+]
 
 export default function History(props) {
 
@@ -45,11 +50,16 @@ export default function History(props) {
             history.push(matchRecord);
         }
 
+        // Generate data limits
+        let sortedScores = audit.sort((a, b) => (a.newRating < b.newRating) ? 1 : -1);
+        dataLim = [100 * sortedScores[sortedScores.length-1].newRating, 100 * sortedScores[0].newRating];
+        console.log(sortedScores);
+        console.log(dataLim);
+
         // Generate JSX of line series
         series = (idList.map((element, index) => {
             if(deckList === undefined) { deckList = [] }
             let newName = deckList.length === 0 ? '' : deckList.find((el) => el.deckID === element).deckName;
-            console.log(newName);
             return (
             <Line 
                 name={newName}
@@ -58,6 +68,7 @@ export default function History(props) {
                 yAxisId={0} 
                 key={element}
                 legendType="line"
+                stroke={colorList[index % colorList.length]}
             />
         )}));
     }
@@ -101,6 +112,7 @@ export default function History(props) {
             <h1>Match History</h1>
             <div className="panel-body">
                 <div className="panel-plot">
+                <div className="plot-label">Elo Rating</ div>
                     <ResponsiveContainer width="100%" height="100%">
                             <LineChart
                                 data={history}
@@ -125,22 +137,18 @@ export default function History(props) {
                                     item => -item.value
                                 }
                             />
-                            <XAxis dataKey="matchNum" />
-                            <YAxis scale="linear"/>
-                            <Legend 
-                                payload={
-                                    history.map(
-                                        (item, index) => ({
-                                            id: item.deckName,
-                                            type: "line",
-                                            value: item.deckName
-                                        })
-                                    )
-                                }
+                            <XAxis 
+                                dataKey="matchNum" 
+                            />
+                            <YAxis 
+                                type="number"
+                                domain={[100*Math.floor(dataLim[0]/100), 100*Math.ceil(dataLim[1]/100)]}
+                                scale="linear"
                             />
                         </LineChart>
                     </ResponsiveContainer>
                 </div>
+                <div className="plot-label">Match Number</ div>
                 <p ref={messageRef}></p>
             </div>
         </div>

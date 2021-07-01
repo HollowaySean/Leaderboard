@@ -1,9 +1,9 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import '../Styles/panel.css';
-import { LineChart, XAxis, YAxis, Tooltip, Line, CartesianGrid, ResponsiveContainer } from 'recharts';
+import { LineChart, XAxis, YAxis, Tooltip, Line, Legend, CartesianGrid, ResponsiveContainer } from 'recharts';
 
 let history = [];
-let data = [];
+let series = null;
 
 export default function History(props) {
 
@@ -13,17 +13,15 @@ export default function History(props) {
     // Get deck history
     retrieveMatchHistory();
 
+    // Set up decklist
+    let deckList = eval(props.deckList);
+
     // Function to turn audit info into data series
     function auditToSeries(audit) {
-
-        console.log(audit);
         
         // Determine object axes
         let newMatchNum = audit.sort((a, b) => (a.matchNum < b.matchNum) ? 1 : -1)[0].matchNum;
         let idList = [...new Set(audit.map(element => element.deckID))];
-
-        console.log(newMatchNum);
-        console.log(idList);
 
         // Generate initial data
         let initialRecord = { matchNum : 0 };
@@ -37,18 +35,31 @@ export default function History(props) {
 
             let matchRecord = { matchNum : i };
             idList.map((element) => {
-                let found = audit.find(element => (element.deckID === element && element.matchNum === i));
-                if(found === undefined) {
+                let found = audit.findIndex(el => (el.deckID === element && el.matchNum === i));
+                if(found === -1) {
                     matchRecord[element] = history[i-1][element];
                 } else {
-                    matchRecord[element] = audit[found].newRating;
+                    matchRecord[element] = audit[found].newRating*100;
                 }
             });
             history.push(matchRecord);
         }
 
-        console.log(history);
-
+        // Generate JSX of line series
+        series = (idList.map((element, index) => {
+            if(deckList === undefined) { deckList = [] }
+            let newName = deckList.length === 0 ? '' : deckList.find((el) => el.deckID === element).deckName;
+            console.log(newName);
+            return (
+            <Line 
+                name={newName}
+                type="linear" 
+                dataKey={element} 
+                yAxisId={0} 
+                key={element}
+                legendType="line"
+            />
+        )}));
     }
 
     // Function to get latest match number
@@ -57,7 +68,7 @@ export default function History(props) {
         props.matchNumCallback(newMatchNum);
     }
 
-    // Function to query deck history from group
+
     function retrieveMatchHistory() {
 
         // Fetch request
@@ -84,16 +95,6 @@ export default function History(props) {
         });
     }
 
-    // Dummy data for test purposes
-    let data = [];
-    for(let i = 0; i < 20; i++) {
-        data.push({
-            name: i,
-            uv: i,
-            pv: (i + (5*(Math.random() - 0.5)))
-        })
-    }
-
     // Return JSX
     return (
         <div className="panel-wide">
@@ -102,15 +103,41 @@ export default function History(props) {
                 <div className="panel-plot">
                     <ResponsiveContainer width="100%" height="100%">
                             <LineChart
-                                data={data}
+                                data={history}
                                 margin={{top: 20, right: 20, left: 20, bottom: 20}}
                             >
                             <CartesianGrid stroke='#f5f5f5' />
-                            <Line type="monotone" dataKey="uv" stroke="#ff7300" yAxisId={0}/>
-                            <Line type="monotone" dataKey="pv" stroke="#387908" yAxisId={0}/>
-                            <Tooltip />
-                            <XAxis dataKey="name" />
-                            <YAxis />
+                            {series}
+                            <Tooltip 
+                                formatter={
+                                    (value, name, props) => {
+                                        return [
+                                            Math.round(value),
+                                            deckList.find((element) => (element.deckID === name)).deckName,
+                                            props
+                                        ]
+                                    }
+                                }
+                                labelFormatter={
+                                    (name) => name === 0 ? "" : "Match " + name
+                                }
+                                itemSorter={
+                                    item => -item.value
+                                }
+                            />
+                            <XAxis dataKey="matchNum" />
+                            <YAxis scale="linear"/>
+                            <Legend 
+                                payload={
+                                    history.map(
+                                        (item, index) => ({
+                                            id: item.deckName,
+                                            type: "line",
+                                            value: item.deckName
+                                        })
+                                    )
+                                }
+                            />
                         </LineChart>
                     </ResponsiveContainer>
                 </div>

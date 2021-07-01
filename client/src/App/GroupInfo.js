@@ -9,6 +9,7 @@ export default function GroupInfo(props) {
     // State hooks
     const [deckList, setDeckList] = useState([]);
     const [needUpdate, setNeedUpdate] = useState(false);
+    const [matchNum, setMatchNum] = useState(-1);
 
     // Callback to update deckList for easy use
     function updateDeckList(newDeckList) {
@@ -39,11 +40,14 @@ export default function GroupInfo(props) {
                 API_ROUTE={props.API_ROUTE}
                 groupID={props.groupID}
                 deckList={deckList}
-                updateCallback={setDeckListCallback}/>
+                updateCallback={setDeckListCallback}
+                matchNum={matchNum}
+                matchNumCallback={setMatchNum}/>
             <History
                 API_ROUTE={props.API_ROUTE}
                 groupID={props.groupID}
-                deckList={deckList}/>
+                deckList={deckList}
+                matchNumCallback={setMatchNum}/>
             </>
         )
     }else{

@@ -31,27 +31,49 @@ export default function Leaderboard(props) {
     }
 
     // Return JSX tags
-    return (
-        <div className="panel" id="double">
-            <h1>Leaderboard</h1>
-            <div className="panel-body">
-                <table><tbody>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Owner</th>
-                        <th>Name</th>
-                        <th>Elo Rating</th>
-                    </tr>
-                    {leaderboardInfo}
-                </tbody></table>
-                <p ref={messageRef}></p>
-                <AddMatch 
-                    deckList={props.deckList}
-                    API_ROUTE={props.API_ROUTE}
-                    groupID={props.groupID}
-                    updateCallback={props.updateCallback}
-                />
+    if(infoList === undefined || infoList.length === 0) {
+        return (
+            <div className="panel" id="double">
+                <h1>Leaderboard</h1>
+                <div className="panel-body">
+                    <table><tbody>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Owner</th>
+                            <th>Name</th>
+                            <th>Elo Rating</th>
+                        </tr>
+                        {leaderboardInfo}
+                    </tbody></table>
+                    <p ref={messageRef}></p>
+                </div>
             </div>
-        </div>
-    )
+        )
+    } else {
+        return (
+            <div className="panel" id="double">
+                <h1>Leaderboard</h1>
+                <div className="panel-body">
+                    <table><tbody>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Owner</th>
+                            <th>Name</th>
+                            <th>Elo Rating</th>
+                        </tr>
+                        {leaderboardInfo}
+                    </tbody></table>
+                    <p ref={messageRef}></p>
+                    <AddMatch 
+                        deckList={props.deckList}
+                        API_ROUTE={props.API_ROUTE}
+                        groupID={props.groupID}
+                        updateCallback={props.updateCallback}
+                        matchNum={props.matchNum}
+                        matchNumCallback={props.matchNumCallback}
+                    />
+                </div>
+            </div>
+        )
+    }
 }

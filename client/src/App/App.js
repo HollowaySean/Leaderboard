@@ -52,7 +52,11 @@ function App(props) {
         API_ROUTE={props.API_ROUTE} 
         userID={userID}
         groupIDCallback={groupChosen}
-        logoutCallback={() => setLoggedIn(false)}
+        logoutCallback={() => {
+          setLoggedIn(false);
+          setGroupID(null);
+          setUserID(null);
+        }}
       />
       <GroupInfo
         API_ROUTE={props.API_ROUTE}

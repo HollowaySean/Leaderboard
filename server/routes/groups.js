@@ -152,7 +152,7 @@ router.get('/audit', async (req, res) => {
     try {
 
         // Search groupID in database
-        queryDB.getHistory(req.query.groupID, async (queryResult) => {
+        queryDB.getAudit(req.query.groupID, async (queryResult) => {
 
             // Return audit list of decks and ratings
             res.status(200).json(queryResult);

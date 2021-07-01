@@ -85,7 +85,7 @@ export default function AddMatch(props) {
             },
             body: JSON.stringify({ results: results,
                     groupID: props.groupID,
-                    matchNum: 0
+                    matchNum: (props.matchNum + 1)
                 })
             })
             .then((res) => {
@@ -95,6 +95,7 @@ export default function AddMatch(props) {
                         // Make updates
                         messageRef.current.innerHTML = 'Match recorded.'
                         props.updateCallback(true);
+                        props.matchNumCallback(props.matchNum + 1);
 
                         break;
                 default:

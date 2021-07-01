@@ -207,7 +207,13 @@ export default function GroupList(props) {
                     <div className="labelButton">
                         <label htmlFor={inviteRef}>Join group by invite code:</label>
                         <input type="text" ref={inviteRef}></input>
-                        <button onClick={HandleJoinGroup}>Create</button>
+                        <button onClick={HandleJoinGroup}>Join</button>
+                    </div>
+                    <div className="logoutButton">
+                        <button 
+                            className="logoutButton" 
+                            onClick={props.logoutCallback}
+                        >Logout</button>
                     </div>
             </div>
         </div>

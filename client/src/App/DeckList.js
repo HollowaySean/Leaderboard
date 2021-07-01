@@ -201,6 +201,7 @@ export default function DeckList(props) {
                     .then((body) => {
                         
                         // Force refresh
+                        // props.needUpdateCallback(true);
                         resetStates();
                     });
                     break;

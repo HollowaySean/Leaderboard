@@ -14,7 +14,7 @@ html, body {
     justify-content: center;
 }
 
-.panel {
+.panel, .panel-wide  {
     font-size: 1.5em;
     background-color :white;
     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
@@ -30,6 +30,11 @@ html, body {
     height: 100%;
 }
 
+.panel-wide {
+    margin: 0;
+    flex: 0.9 1 400px;
+}
+
 .panel-v-container {
     height: 100%;
 }
@@ -42,7 +47,7 @@ html, body {
     flex: 0 1 800px !important;
 }
 
-.panel > h1 {
+.panel > h1, .panel-wide > h1 {
     margin: 0px;
     background-color:rgb(26, 75, 221);
     color: white;
@@ -70,6 +75,7 @@ input[type="text"], input[type="password"] {
     flex-direction: column;
     padding-left: 20px;
     padding-right: 20px;
+    flex-flow: column;
 }
 
 #clickable {
@@ -124,6 +130,11 @@ button {
 
 .labelButton > button {
     width: 50%;
+}
+
+.logoutButton > button{
+    width: 50%;
+    margin-top: 40px;
 }
 
 .panel-table {

@@ -42,7 +42,6 @@ export default function AddMatch(props) {
                 key={i}
                 onChange={ () => {
                     matchResults[i] = !matchResults[i];
-                    console.log(matchResults);
                 }}
             />
         );
@@ -50,20 +49,35 @@ export default function AddMatch(props) {
 
     // Callback function to handle adding a match
     function HandleAddMatch(e) {
+
+        // Generate results object
         let results = [];
         for(let i = 0; i < 6; i++) {
             if(matchDecks[i] !== null) {
-                console.log(props.deckList);
                 results.push({deckID: deckList[matchDecks[i]].deckID, isWinner: matchResults[i]});
             }
         }
-        console.log(
-            JSON.stringify({ results: results,
-                groupID: props.groupID,
-                matchNum: 0
-            })
-        )
 
+        // Check if too few decks are listed
+        if(results.length < 2) {
+            messageRef.current.innerHTML = 'Error: Not enough decks listed.';
+            return;
+        }
+
+        // Check for duplicates
+        let findDuplicates = (array) => array.filter((item, index) => array.indexOf(item) !== index);
+        if(findDuplicates(results.map(element => element.deckID)).length > 0) {
+            messageRef.current.innerHTML = 'Error: Duplicate deck in match.';
+            return;
+        }
+
+        // Check if no winner is listed
+        if(results.map(element => element.isWinner).indexOf(true) === -1) {
+            messageRef.current.innerHTML = 'Error: No winner listed.';
+            return;
+        }
+
+        // POST with fetch
         fetch(props.API_ROUTE + '/groups/newmatch', {
             method: 'POST',
             headers: {

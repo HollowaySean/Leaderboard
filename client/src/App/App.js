@@ -3,7 +3,6 @@ import Login from './Login';
 import GroupList from './GroupList';
 import GroupInfo from './GroupInfo';
 
-
 // Flag to avoid infinite loop
 let checkedLogin = false;
 
@@ -21,7 +20,7 @@ function App(props) {
     if("userID" in localStorage && !checkedLogin) {
       let newUserID = parseInt(localStorage.getItem("userID"));
       checkedLogin = true;
-      loginComplete(newUserID, true);
+      loginComplete(newUserID, false);
     }
   }, []);
 
@@ -53,6 +52,7 @@ function App(props) {
         API_ROUTE={props.API_ROUTE} 
         userID={userID}
         groupIDCallback={groupChosen}
+        logoutCallback={() => setLoggedIn(false)}
       />
       <GroupInfo
         API_ROUTE={props.API_ROUTE}

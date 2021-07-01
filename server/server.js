@@ -9,15 +9,15 @@ app.use(cors());
 
 // Routes
 const userRouter = require('./routes/users');
-app.use('/users', userRouter);
+app.use('/api/users', userRouter);
 
 const groupRouter = require('./routes/groups');
-app.use('/groups', groupRouter);
+app.use('/api/groups', groupRouter);
 
 const deckRouter = require('./routes/decks');
-app.use('/decks', deckRouter);
+app.use('/api/decks', deckRouter);
 
-app.get('/test', async (req, res) => {
+app.get('/api/test', async (req, res) => {
     res.status(201).send('Success!');
 });
 

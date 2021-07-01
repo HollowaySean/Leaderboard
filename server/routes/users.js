@@ -19,7 +19,7 @@ router.post('/create', async (req, res) => {
             // Add username and hash to database
             if(queryResult.length == 0){
 
-                queryDB.createUser(req.body.name.toLowerCase(), hashedPassword);
+                queryDB.createUser(req.body.name, hashedPassword);
                 res.status(201).send('New user created');
             } else {
 

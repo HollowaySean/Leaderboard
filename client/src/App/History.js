@@ -53,8 +53,6 @@ export default function History(props) {
         // Generate data limits
         let sortedScores = audit.sort((a, b) => (a.newRating < b.newRating) ? 1 : -1);
         dataLim = [100 * sortedScores[sortedScores.length-1].newRating, 100 * sortedScores[0].newRating];
-        console.log(sortedScores);
-        console.log(dataLim);
 
         // Generate JSX of line series
         series = (idList.map((element, index) => {
@@ -123,9 +121,10 @@ export default function History(props) {
                             <Tooltip 
                                 formatter={
                                     (value, name, props) => {
+                                        let newNameObj = deckList.find((element) => (element.deckID === name));
                                         return [
                                             Math.round(value),
-                                            deckList.find((element) => (element.deckID === name)).deckName,
+                                            newNameObj === undefined ? '' : newNameObj.deckName,
                                             props
                                         ]
                                     }

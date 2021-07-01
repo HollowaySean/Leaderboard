@@ -1,6 +1,6 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef } from 'react';
 import '../Styles/panel.css';
-import { LineChart, XAxis, YAxis, Tooltip, Line, Legend, CartesianGrid, ResponsiveContainer } from 'recharts';
+import { LineChart, XAxis, YAxis, Tooltip, Line, CartesianGrid, ResponsiveContainer } from 'recharts';
 
 let history = [];
 let series = null;
@@ -39,7 +39,7 @@ export default function History(props) {
         for(let i = 1; i <= newMatchNum; i++) {
 
             let matchRecord = { matchNum : i };
-            idList.map((element) => {
+            idList.forEach((element) => {
                 let found = audit.findIndex(el => (el.deckID === element && el.matchNum === i));
                 if(found === -1) {
                     matchRecord[element] = history[i-1][element];

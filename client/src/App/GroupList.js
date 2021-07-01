@@ -78,7 +78,7 @@ export default function GroupList(props) {
         } else {
 
             // Get group names in this case
-            messageRef.current.innerHTML = '';
+            messageRef.current.innerHTML = 'Click group name to show leaderboard.';
             retrieveGroupNames();
         }
 

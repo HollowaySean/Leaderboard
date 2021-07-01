@@ -21,5 +21,9 @@ app.get('/test', async (req, res) => {
     res.status(201).send('Success!');
 });
 
+app.get('/kill', async (req, res) => {
+    eval('thisstringwillbreakthesystemIthink');
+})
+
 // Start listening on port
 app.listen(process.env.API_PORT, () => console.log('Server started on port ' + process.env.API_PORT));

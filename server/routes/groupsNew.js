@@ -32,7 +32,7 @@ router.post('/adduser', async (req, res) => {
             // If match is not found, return error code
             if(results.rows.length === 0) {
 
-                res.status(400).send('Invalid invite code');
+                res.status(400).send('Invalid invite code.');
             } else {
 
                 let groupID = results.rows[0].groupID;
@@ -43,7 +43,7 @@ router.post('/adduser', async (req, res) => {
                     // If already in group, return error code
                     if(results.rows.find(element => element.groupID === groupID)) {
 
-                        res.status(409).send('User already in group');
+                        res.status(409).send('User already in group.');
                     } else {
 
                         // Query database
@@ -56,95 +56,39 @@ router.post('/adduser', async (req, res) => {
     } catch { res.status(500).send(); }
 });
 
-// // Add user to group with invite code
-// router.post('/adduser', async (req, res) => {
-    
-//     try {
-    
-//         // Find group info by invite code
-//         queryDB.groupWithCode(req.body.inviteCode, async (queryResult) => {
+// Add deck to group
+router.post('/adddeck', async (req, res) => {
 
-//             // Check if username exists
-//             if(queryResult.length == 0) {
+    // Check if deck is already in group
+    queryDB.getGeneric('groupDecks', 'groupID', req.body.groupID, async(err, results) => {
 
-//                 res.status(400).send('Invalid invite code');
-//             } else {
-                
-//                 // Add user to group using code
-//                 queryDB.addUserToGroup(queryResult[0].groupID, req.body.userID);
-//                 res.status(201).json({
-//                     groupID     : queryResult[0].groupID,
-//                     groupName   : queryResult[0].groupName,
-//                     inviteCode  : req.body.inviteCode
-//                 })
-//             }
-//         });
+        // If already in group, return error code
+        if(results.rows.find(element => element.deckID === req.body.deckID)) {
 
-//     } catch {
-//         res.status(500).send();
-//     }
-// });
+            res.status(400).send('Deck already in group.');
+        } else {
 
-// // Add deck to group
-// router.post('/adddeck', async (req, res) => {
-//     try {
-    
-//         // Add deck to groupDecks database
-//         queryDB.addDeckToGroup(req.body.groupID, req.body.userID, req.body.deckID);
-//         res.status(201).status('Deck added to group');
+            // Query database
+            queryDB.insertFetchGeneric(req.body, res, 'groupDecks', null);
+        }
+    });
+});
 
-//     } catch {
-//         res.status(500).send();
-//     }
-// });
+// Get group info by id
+router.get('/info', async (req, res) => {
+    queryDB.getFetchGeneric(req, res, 'groups', 'groupID')
+});
 
-// // Get group names by id
-// router.get('/info', async (req, res) => {
-//     try {
+// Get list of users in group
+router.get('/users', async (req, res) => {
+    queryDB.getFetchGeneric(req, res, 'groupMembers', 'groupID')
+});
 
-//         // Search groupID in database
-//         queryDB.groupWithID(req.query.groupID, async (queryResult) => {
 
-//             // Return list of userID values
-//             res.status(200).json(queryResult);
-//         })
-
-//     } catch {
-//         res.status(500).send();
-//     }
-// });
-
-// // Get list of users in group
-// router.get('/users', async (req, res) => {
-//     try {
-
-//         // Search groupID in database
-//         queryDB.usersInGroup(req.query.groupID, async (queryResult) => {
-
-//             // Return list of userID values
-//             res.status(200).json({ userID: queryResult});
-//         })
-
-//     } catch {
-//         res.status(500).send();
-//     }
-// });
-
-// // Get list of decks in group
-// router.get('/decks', async (req, res) => {
-//     try {
-
-//         // Search groupID in database
-//         queryDB.decksInGroup(req.query.groupID, async (queryResult) => {
-
-//             // Return list of userID values
-//             res.status(200).json(queryResult);
-//         })
-
-//     } catch {
-//         res.status(500).send();
-//     }
-// });
+// Get list of decks in group
+router.get('/decks', async (req, res) => {
+    queryDB.getFetchGeneric(req, res, 'groupDecks', 'groupID')
+});
 
 // // Get group leaderboard
 // router.get('/ranking', async (req, res) => {

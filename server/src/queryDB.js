@@ -34,7 +34,7 @@ module.exports.executeQuery = async (queryString, callback) => {
 module.exports.getGeneric = async (tableName, key, values, callback) => {
 
     // Pass query to database
-    let queryString = `SELECT * FROM ` + tableName + ` WHERE ` + key + ` IN (` + mysql.escape(values) + `);`
+    let queryString = `SELECT * FROM ` + tableName + ` WHERE ` + key + ` IN (` + values + `);`
     module.exports.executeQuery(queryString, callback);
 }
 
@@ -43,16 +43,14 @@ module.exports.getFetchGeneric = async (req, res, tableName, key) => {
     try {
 
         // Pass query to database
-        module.exports.executeQuery(
-            `SELECT * FROM ` + tableName + ` WHERE ` + key + ` in (` + mysql.escape(req.query[key]) + `);`,
-            async (err, result) => {
+        module.exports.getGeneric(tableName, key, req.query[key], async (err, results) => {
 
-                // Catch errors
-                if(err) throw err;
+            // Catch errors
+            if(err) throw err;
 
-                // Send successful response
-                res.status(200).json(result);
-            });
+            // Send successful response
+            res.status(200).json(results);
+        });
 
     } catch {
 
@@ -86,7 +84,7 @@ module.exports.insertFetchGeneric = async (keysValues, res, tableName, returnKey
             }
             
             // Return list of user names
-            res.status(201).json(returnData);
+            res.status(201).json({rows: [returnData]});
         })
 
     } catch {

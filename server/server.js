@@ -11,8 +11,8 @@ app.use(cors());
 const userRouter = require('./routes/users');
 app.use('/api/users', userRouter);
 
-// const groupRouter = require('./routes/groups');
-// app.use('/api/groups', groupRouter);
+const groupRouter = require('./routes/groupsNew');
+app.use('/api/groups', groupRouter);
 
 const deckRouter = require('./routes/decks');
 app.use('/api/decks', deckRouter);

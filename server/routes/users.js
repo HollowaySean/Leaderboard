@@ -24,7 +24,7 @@ router.get('/groups', async (req, res) => {
 router.post('/create', async (req, res) => {
     try {
         // Check if username exists in database
-        queryDB.getGeneric('users', 'userName', req.body.name, async (err, results) => {
+        queryDB.getGeneric('users', 'userName', req.body.userName, async (err, results) => {
             
             // Generate hash for password
             const salt = await bcrypt.genSalt();
@@ -33,7 +33,7 @@ router.post('/create', async (req, res) => {
             // Add username and hash to database
             if(results.rows.length === 0){
 
-                let keysValues = { userName : req.body.name, hash : hashedPassword}
+                let keysValues = { userName : req.body.userName, hash : hashedPassword}
                 queryDB.insertFetchGeneric(keysValues, res, 'users', 'userID');
 
             } else {

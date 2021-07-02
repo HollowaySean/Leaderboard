@@ -81,7 +81,9 @@ module.exports.insertFetchGeneric = async (keysValues, res, tableName, returnKey
 
             // Pack data for return
             let returnData = keysValues;
-            returnData[returnKey] = results.rows.insertId;
+            if(returnKey) {
+                returnData[returnKey] = results.rows.insertId;
+            }
             
             // Return list of user names
             res.status(201).json(returnData);

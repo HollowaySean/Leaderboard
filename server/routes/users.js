@@ -7,18 +7,17 @@ router.use(express.json());
 
 // Get list of groups which contain user
 router.get('/names', async (req, res) => { 
-    queryDB.getByUserID(req, res, 'users')
-    .then(console.log(res));
+    queryDB.getFetchGeneric(req, res, 'users', 'userID');
 });
 
 // Get list of decks that user owns
 router.get('/decks', async (req, res) => { 
-    queryDB.getByUserID(req, res, 'decks');
+    queryDB.getFetchGeneric(req, res, 'decks', 'userID');
 });
 
 // Get list of groups which contain user
 router.get('/groups', async (req, res) => { 
-    queryDB.getByUserID(req, res, 'groupMembers');
+    queryDB.getFetchGeneric(req, res, 'groupMembers', 'userID');
 });
 
 // Create a new user
@@ -33,10 +32,10 @@ router.post('/create', async (req, res) => {
     
             // Add username and hash to database
             if(results.rows.length === 0){
-    
-                queryDB.createUser(req.body.name, hashedPassword, async (err, results) => {
-                    res.status(201).json(results);
-                });
+
+                let keysValues = { userName : req.body.name, hash : hashedPassword}
+                queryDB.insertFetchGeneric(keysValues, res, 'users', 'userID');
+
             } else {
     
                 res.status(409).send('User already exists');

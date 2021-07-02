@@ -44,7 +44,7 @@ module.exports.getFetchGeneric = async (req, res, tableName, key) => {
 
         // Pass query to database
         module.exports.executeQuery(
-            `SELECT * FROM ` + mysql.escape(tableName) + ` WHERE ` + mysql.escape(key) + ` in ('` + mysql.escape(req.query[key]) + `');`,
+            `SELECT * FROM ` + tableName + ` WHERE ` + key + ` in (` + mysql.escape(req.query[key]) + `);`,
             async (err, result) => {
 
                 // Catch errors
@@ -62,14 +62,36 @@ module.exports.getFetchGeneric = async (req, res, tableName, key) => {
 }
 
 // Wrapper for insert queries
-//TODO!!!!!!!!!
-module.exports.createUser = async (userName, hash, callback) => {
-    db.query('INSERT INTO users (userName, hash) VALUES (' + mysql.escape(userName) + ', ' + mysql.escape(hash) + ');',
-    (err, result) => {
-        if(err) throw err;
+module.exports.insertGeneric = async (tableName, keysValues, callback) => {
 
-        callback(err, result);
-    });
+    // Pass query string to database
+    let queryString = `INSERT INTO ` + tableName + ` (` + Object.keys(keysValues) + `) VALUES (` + mysql.escape(Object.values(keysValues)) +`);`
+    module.exports.executeQuery(queryString, callback);
+}
+
+// Wrapper for insert query fetch requests 
+module.exports.insertFetchGeneric = async (keysValues, res, tableName, returnKey) => {
+    try {
+
+        // Search userID in database
+        module.exports.insertGeneric(tableName, keysValues, (err, results) => {
+
+            // Handle errors
+            if(err) throw err;
+
+            // Pack data for return
+            let returnData = keysValues;
+            returnData[returnKey] = results.rows.insertId;
+            
+            // Return list of user names
+            res.status(201).json(returnData);
+        })
+
+    } catch {
+
+        // Send unsuccessful response
+        res.status(500).send();
+    }
 }
 
 // module.exports.executeQuery = executeQuery;

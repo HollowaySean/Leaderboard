@@ -154,7 +154,11 @@ button {
     justify-content: center;
     height: auto;
     width: inherit;
-    max-height: 30vh;
+    max-height: 20vh;
+    overflow-y: auto;
+}
+
+.panel-v-container > .panel {
     overflow-y: auto;
 }
 

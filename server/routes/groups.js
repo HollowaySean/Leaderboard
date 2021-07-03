@@ -127,9 +127,10 @@ router.post('/newmatch', async(req, res) => {
         // Add match to database
         createMatchRecord(req.body)
         .then(createAuditRecord(req.body))
+        .then(console.log('STILL NEED TO UPDATE DECK INFO'))
 
         // Return modified body
-        .then(res.status(201).json(req.body));
+        .then(res.status(201).json({rows : req.body}));
     
     } catch { res.status(500).send(); }
 

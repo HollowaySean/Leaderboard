@@ -2,24 +2,13 @@ import React, { useState } from 'react'
 import UserList from './UserList'
 import DeckList from './DeckList'
 import Leaderboard from './Leaderboard'
-import History from './History'
+// import History from './History'
 
 export default function GroupInfo(props) {
 
     // State hooks
-    const [deckList, setDeckList] = useState([]);
-    const [needUpdate, setNeedUpdate] = useState(false);
-    const [matchNum, setMatchNum] = useState(-1);
-
-    // Callback to update deckList for easy use
-    function updateDeckList(newDeckList) {
-        setNeedUpdate(false);
-        setDeckList(newDeckList);
-    }
-
-    function setDeckListCallback() {
-        setNeedUpdate(true);
-    }
+    const [deckList, setDeckList] = useState('');
+    const [matchNum, setMatchNum] = useState(0);
 
     if(props.groupID !== null) {
         return(
@@ -27,27 +16,27 @@ export default function GroupInfo(props) {
             <div className="panel-v-container">
                 <UserList 
                     API_ROUTE={props.API_ROUTE}
-                    groupID={props.groupID}/>
+                    groupID={props.groupID}
+                    userID={props.userID}
+                />
                 <DeckList
                     API_ROUTE={props.API_ROUTE}
                     groupID={props.groupID}
                     userID={props.userID}
-                    needUpdate={needUpdate}
-                    deckListCallback={updateDeckList}
-                    needUpdateCallback={setNeedUpdate}/>
+                    deckListCallback={setDeckList}/>
             </div>
             <Leaderboard
                 API_ROUTE={props.API_ROUTE}
                 groupID={props.groupID}
                 deckList={deckList}
-                updateCallback={setDeckListCallback}
                 matchNum={matchNum}
-                matchNumCallback={setMatchNum}/>
-            <History
+                matchNumCallback={setMatchNum}
+                deckListCallback={setDeckList}/>
+            {/* <History
                 API_ROUTE={props.API_ROUTE}
                 groupID={props.groupID}
                 deckList={deckList}
-                matchNumCallback={setMatchNum}/>
+                matchNumCallback={setMatchNum}/> */}
             </>
         )
     }else{

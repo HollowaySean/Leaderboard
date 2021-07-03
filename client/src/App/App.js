@@ -62,11 +62,11 @@ function App(props) {
         groupIDCallback={setGroupID}
         logoutCallback={logoutCallback}
       />
-      {/* <GroupInfo
+      <GroupInfo
         API_ROUTE={props.API_ROUTE}
         groupID={groupID}
         userID={userID}
-      /> */}
+      />
     </div>
     )
 

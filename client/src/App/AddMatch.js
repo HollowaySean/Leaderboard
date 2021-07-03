@@ -1,8 +1,8 @@
-import React, { useRef } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import Dropdown from './Dropdown'
 import '../Styles/dropdown.css'
 
-let deckList = [];
+let infoList = [];
 let matchDecks = new Array(6).fill(null);
 let matchResults = new Array(6).fill(false);
 
@@ -11,41 +11,50 @@ export default function AddMatch(props) {
     // Set up useref react hooks
     const messageRef = useRef();
 
-    // Read in JSON string
-    if(props.deckList.length > 0) {
-        deckList = JSON.parse(props.deckList);
-    }
+    // Set up state hooks
+    const [dropDownList, setDropDownList] = useState([]);
+    const [checkBoxList, setCheckBoxList] = useState([]);
 
-    // Prepare list of dropdown menus
-    let dropDownList = [];
-    for(let i = 0; i < 6; i++) {
-        let title = i < 2 ? 'Choose' : 'None';
-        dropDownList.push(
-            <Dropdown 
-                key={i}
-                optionList={deckList.map(element => element.deckName)} 
-                dropdownTitle={title}
-                choiceCallback={
-                    (index) => {
-                        matchDecks[i] = index;
+    // Unpack string each time deckList is updated
+    useEffect(() => {
+
+        // Convert string to JSOn
+        infoList = props.deckList ? JSON.parse(props.deckList) : [];
+
+        // Prepare list of dropdown menus
+        let dropDownTmp = [];
+        for(let i = 0; i < 6; i++) {
+            let title = i < 2 ? 'Choose' : 'None';
+            dropDownTmp.push(
+                <Dropdown 
+                    key={i}
+                    optionList={infoList.map(element => element.deckName)} 
+                    dropdownTitle={title}
+                    choiceCallback={
+                        (index) => {
+                            matchDecks[i] = index;
+                        }
                     }
-                }
-            />)
-    }
+                />)
+        }
+        setDropDownList(dropDownTmp);
 
-    // Prepare list of checkboxes
-    let checkboxList = [];
-    for(let i = 0; i < 6; i++) {
-        checkboxList.push(
-            <input 
-                type="checkbox" 
-                key={i}
-                onChange={ () => {
-                    matchResults[i] = !matchResults[i];
-                }}
-            />
-        );
-    }
+        // Prepare list of checkboxes
+        let checkBoxTmp = [];
+        for(let i = 0; i < 6; i++) {
+            checkBoxTmp.push(
+                <input 
+                    type="checkbox" 
+                    key={i}
+                    onChange={ () => {
+                        matchResults[i] = !matchResults[i];
+                    }}
+                />
+            );
+        }
+        setCheckBoxList(checkBoxTmp);
+
+    }, [props.deckList]);
 
     // Callback function to handle adding a match
     function HandleAddMatch(e) {
@@ -54,7 +63,12 @@ export default function AddMatch(props) {
         let results = [];
         for(let i = 0; i < 6; i++) {
             if(matchDecks[i] !== null) {
-                results.push({deckID: deckList[matchDecks[i]].deckID, isWinner: matchResults[i]});
+                results.push({
+                    deckID: infoList[matchDecks[i]].deckID, 
+                    isWinner: matchResults[i],
+                    mu: infoList[matchDecks[i]].mu,
+                    sigma: infoList[matchDecks[i]].sigma
+                });
             }
         }
 
@@ -77,6 +91,11 @@ export default function AddMatch(props) {
             return;
         }
 
+        console.log(JSON.stringify({ results: results,
+            groupID: props.groupID,
+            matchNum: (props.matchNum + 1)
+        }));
+
         // POST with fetch
         fetch(props.API_ROUTE + '/groups/newmatch', {
             method: 'POST',
@@ -91,12 +110,18 @@ export default function AddMatch(props) {
             .then((res) => {
                 switch(res.status) {
                     case 201:
-                        
-                        // Make updates
-                        messageRef.current.innerHTML = 'Match recorded.'
-                        props.updateCallback(true);
-                        props.matchNumCallback(props.matchNum + 1);
-
+                        res.json()
+                        .then((body) => {
+                            // Make updates
+                            body.rows.results.forEach(element => {
+                                let foundDeck = infoList.findIndex(deck => deck.deckID === element.deckID);
+                                infoList[foundDeck].mu = element.mu;
+                                infoList[foundDeck].sigma = element.sigma;
+                            });
+                            messageRef.current.innerHTML = 'Match recorded.'
+                            props.matchNumCallback(props.matchNum + 1);
+                            props.deckListCallback(JSON.stringify(infoList))
+                        })
                         break;
                 default:
                     console.log('Unknown HTTP response: ' + res.status);
@@ -120,7 +145,7 @@ export default function AddMatch(props) {
                 </div>
                 <div className="grid-row">
                     <p>Winner:</p>
-                    {checkboxList}
+                    {checkBoxList}
                 </div> 
             </div>
             <button onClick={HandleAddMatch}>Add Match</button>

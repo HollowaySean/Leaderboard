@@ -12,7 +12,7 @@ export default function UserList(props) {
     const [idList, setIDList] = useState(null);
     const [nameList, setNameList] = useState([]);
 
-    // Retrieve user list via useeffect and fetch
+    // On initialize or groupID change, retrieve user list
     useEffect(() => {
 
         // Fetch list of users
@@ -24,7 +24,9 @@ export default function UserList(props) {
                 switch(res.status) {
                 case 200:
                     res.json()
-                    .then((body) => setIDList(body.userID))
+                    .then((body) => {
+                        setIDList(body.rows.map(element => element.userID));
+                    });
                     break;
                 default:
                     console.log('Unknown HTTP response: ' + res.status);
@@ -37,8 +39,18 @@ export default function UserList(props) {
             });
         }
 
+        // Call function
+        retrieveUserList();
+
+    }, [props.API_ROUTE, props.userID, props.groupID]);
+
+    // On retrieving or changing group ID list, get user names 
+
+    useEffect(() => {
+
         // Fetch user names
         function retrieveUserNames() {
+
             fetch(props.API_ROUTE + '/users/names?userID=' + idList)
             .then((res) => {
         
@@ -47,8 +59,8 @@ export default function UserList(props) {
                 case 200:
                     res.json()
                     .then((body) => {
-                        infoList = body
-                        setNameList(body.userName);
+                        infoList = body.rows;
+                        setNameList(infoList.map(element => element.userName));
                     });
                     break;
                 default:
@@ -62,27 +74,12 @@ export default function UserList(props) {
             });
         }
 
-        // Get user list if empty, otherwise grab list of names
-        if(idList === null){
+        // Call function
+        retrieveUserNames();
 
-            retrieveUserList()
-        } else if(idList.length === 0){
+    }, [idList, props.API_ROUTE]);
+    
 
-            messageRef.current.innerHTML = "There are no members in this group.";
-        } else {
-
-            // Get user names in this case
-            retrieveUserNames();
-        }
-
-    }, [idList, nameList, props.API_ROUTE, props.groupID]);
-
-    useEffect(() => {
-        messageRef.current.innerHTML = '';
-        infoList = [];
-        setIDList(null)
-        setNameList([]);
-    }, [props.groupID]);
 
     // Return JSX
     return (
@@ -95,11 +92,15 @@ export default function UserList(props) {
                             <th>Name</th>
                         </tr>
                         {infoList
-                        .map(element => (
+                        .map(element =>{
+                            let myName = (element.userID === props.userID) 
+                                ? (<b>{element.userName}</b>)
+                                : element.userName;
+                            return (
                             <tr key={element.userID}>
-                                <td>{element.userName}</td>
+                                <td>{myName}</td>
                             </tr>
-                        ))}
+                        )})}
                     </tbody></table>
                 </div>
                 <p ref={messageRef}></p>

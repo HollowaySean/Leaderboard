@@ -2,238 +2,179 @@
 const express   = require('express');
 const router    = express.Router();
 const queryDB   = require('../src/queryDB');
+const elo       = require('../src/elo');
 router.use(express.json());
 
 // Create a new group
 router.post('/create', async (req, res) => {
-    try {
 
-        // Generate invite code for group
-        let inviteCode = '';
-        for(let i = 0; i < 5; i++) {
-            let newCharCode = Math.floor(Math.random() * 26) + 65;
-            inviteCode += String.fromCharCode(newCharCode);
-        }
-
-        // Create new group and return group info
-        queryDB.createGroup(req.body.groupName, inviteCode, 
-            (queryResult) => {
-
-                res.status(201).json({ 
-                    groupID     : queryResult.insertId,
-                    groupName   : req.body.groupName,
-                    inviteCode  : inviteCode 
-                    });
-            });
-        
-    } catch {
-        res.status(500).send();
+    // Generate invite code for group
+    let inviteCode = '';
+    for(let i = 0; i < 5; i++) {
+        let newCharCode = Math.floor(Math.random() * 26) + 65;
+        inviteCode += String.fromCharCode(newCharCode);
     }
+
+    // Set up data to be pushed to database
+    let keysValues = req.body;
+    keysValues.inviteCode = inviteCode;
+
+    // Query database
+    queryDB.insertFetchGeneric(req.body, res, 'groups', 'groupID');
 });
 
-// Add user to group with invite code
+// Add user to group
 router.post('/adduser', async (req, res) => {
-    
     try {
-    
+
         // Find group info by invite code
-        queryDB.groupWithCode(req.body.inviteCode, async (queryResult) => {
+        queryDB.getGeneric('groups', 'inviteCode', req.body.inviteCode, async (err, results) => {
 
-            // Check if username exists
-            if(queryResult.length == 0) {
+            // If match is not found, return error code
+            if(results.rows.length === 0) {
 
-                res.status(400).send('Invalid invite code');
+                res.status(400).send('Invalid invite code.');
             } else {
-                
-                // Add user to group using code
-                queryDB.addUserToGroup(queryResult[0].groupID, req.body.userID);
-                res.status(201).json({
-                    groupID     : queryResult[0].groupID,
-                    groupName   : queryResult[0].groupName,
-                    inviteCode  : req.body.inviteCode
-                })
+
+                let groupID = results.rows[0].groupID;
+
+                // Check if user is already in group
+                queryDB.getGeneric('groupMembers', 'userID', req.body.userID, async (err, results) => {
+
+                    // If already in group, return error code
+                    if(results.rows.find(element => element.groupID === groupID)) {
+
+                        res.status(409).send('User already in group.');
+                    } else {
+
+                        // Query database
+                        let keysValues = { userID : req.body.userID, groupID : groupID };
+                        queryDB.insertFetchGeneric(keysValues, res, 'groupMembers', null);
+                    }
+                });
             }
         });
-
-    } catch {
-        res.status(500).send();
-    }
+    } catch { res.status(500).send(); }
 });
 
 // Add deck to group
 router.post('/adddeck', async (req, res) => {
-    try {
-    
-        // Add deck to groupDecks database
-        queryDB.addDeckToGroup(req.body.groupID, req.body.userID, req.body.deckID);
-        res.status(201).status('Deck added to group');
 
-    } catch {
-        res.status(500).send();
-    }
+    // Check if deck is already in group
+    queryDB.getGeneric('groupDecks', 'groupID', req.body.groupID, async(err, results) => {
+
+        // If already in group, return error code
+        if(results.rows.find(element => element.deckID === req.body.deckID)) {
+
+            res.status(400).send('Deck already in group.');
+        } else {
+
+            // Query database
+            queryDB.insertFetchGeneric(req.body, res, 'groupDecks', null);
+        }
+    });
 });
 
-// Get group names by id
+// Get group info by id
 router.get('/info', async (req, res) => {
-    try {
-
-        // Search groupID in database
-        queryDB.groupWithID(req.query.groupID, async (queryResult) => {
-
-            // Return list of userID values
-            res.status(200).json(queryResult);
-        })
-
-    } catch {
-        res.status(500).send();
-    }
+    queryDB.getFetchGeneric(req, res, 'groups', 'groupID')
 });
 
 // Get list of users in group
 router.get('/users', async (req, res) => {
-    try {
-
-        // Search groupID in database
-        queryDB.usersInGroup(req.query.groupID, async (queryResult) => {
-
-            // Return list of userID values
-            res.status(200).json({ userID: queryResult});
-        })
-
-    } catch {
-        res.status(500).send();
-    }
+    queryDB.getFetchGeneric(req, res, 'groupMembers', 'groupID')
 });
+
 
 // Get list of decks in group
 router.get('/decks', async (req, res) => {
-    try {
-
-        // Search groupID in database
-        queryDB.decksInGroup(req.query.groupID, async (queryResult) => {
-
-            // Return list of userID values
-            res.status(200).json(queryResult);
-        })
-
-    } catch {
-        res.status(500).send();
-    }
-});
-
-// Get group leaderboard
-router.get('/ranking', async (req, res) => {
-    try {
-
-        // Search groupID in database
-        queryDB.getLeaderboard(req.query.groupID, async (queryResult) => {
-
-            let sortedList = queryResult.sortByRating();
-            for(let i = 0; i < sortedList.length; i++) {
-                sortedList[i].rank = i+1;
-                sortedList[i].rating = sortedList[i].mu - 3*sortedList[i].sigma;
-                delete sortedList[i].mu;
-                delete sortedList[i].sigma;
-                delete sortedList[i].isWinner;
-                
-            }
-
-            // Return list of deck rating information
-            res.status(200).json(sortedList);
-        })
-
-    } catch {
-        res.status(500).send();
-    }
+    queryDB.getFetchGeneric(req, res, 'groupDecks', 'groupID')
 });
 
 // Get group statistic history
 router.get('/audit', async (req, res) => {
-    try {
-
-        // Search groupID in database
-        queryDB.getAudit(req.query.groupID, async (queryResult) => {
-
-            // Return audit list of decks and ratings
-            res.status(200).json(queryResult);
-        })
-
-    } catch {
-        res.status(500).send();
-    }
+    queryDB.getFetchGeneric(req, res, 'groupRecords', 'groupID');
 });
 
 // Get group match history
 router.get('/history', async (req, res) => {
-    try {
-
-        // Search groupID in database
-        queryDB.getHistory(req.query.groupID, async (queryResult) => {
-
-            // Return historical list of matches
-            res.status(200).json(queryResult);
-        })
-
-    } catch {
-        res.status(500).send();
-    }
+    queryDB.getFetchGeneric(req, res, 'groupMatches', 'groupID');
 });
 
 // Get most recent match number
 router.get('/lastmatch', async (req, res) => {
-    try {
-
-        // Search groupID in database
-        queryDB.getLastMatchNum(req.body.groupID, async (queryResult) => {
-
-            // Return last match number
-            res.status(200).json({ matchNum : queryResult });
-        })
-
-    } catch {
-        res.status(500).send();
-    }
+    queryDB.getFetchMax(req, res, 'groupMatches', 'groupID', 'matchNum');
 });
 
-// Add process new match
+// Add and process new match
 router.post('/newmatch', async(req, res) => {
     try {
 
-        // Get DeckInfo objects
-        let deckList = req.body.results.map(element => element.deckID);
-        queryDB.getDeckInfo(req.body.groupID, deckList, 
-            async (deckInfoList) => {
-                
-                // Set isWinner values for resulting decklist
-                for(let i = 0; i < deckInfoList.length; i++ ) {
-                    deckInfoList[i].isWinner = req.body.results[i].isWinner;
-                }
+        // Update statistics using Elo rating system
+        req.body.results = elo.matchUpdate(req.body.results);
 
-                // Generate new statistics
-                deckInfoList = queryDB.matchUpdateDecks(deckInfoList, req.body.matchNum);
+        // Add match to database
+        createMatchRecord(req.body)
+        .then(createAuditRecord(req.body))
 
-                let muList      = deckInfoList.map(element => element.mu);
-                let sigmaList   = deckInfoList.map(element => element.sigma);
-                let ratingList  = deckInfoList.map(element => (element.mu - 3* element.sigma));
+        // Return modified body
+        .then(res.status(201).json(req.body));
+    
+    } catch { res.status(500).send(); }
 
-                // Update each deck and add new audit record
-                for(let i = 0; i < deckList.length; i++) {
-                    queryDB.createRecord(req.body.groupID, req.body.matchNum, deckList[i], ratingList[i]);
-                    queryDB.updateDeck(req.body.groupID, deckList[i], muList[i], sigmaList[i]);
-                }
-
-                // Add match to list in database
-                queryDB.createMatch(req.body.groupID, req.body.matchNum, deckInfoList);
-
-                // If none of those fail, return HTTP code
-                res.status(201).send('Match successfully recorded');
-
-            });
-
-    } catch {
-        res.status(500).send();
-    }
 });
 
+// Function to make calls to record audit info
+async function createAuditRecord(body) {
+
+    // Loop asynchronously through list
+    // (Note: is asynchrony necessary?)
+    let iteration = 0;
+    let insertSingle = async (data, iteration) => {
+
+        if(iteration < data.length) {
+
+            // Query database to add single deck record
+            queryDB.insertGeneric('groupRecords', data[iteration], (err, results) => {
+                if(err) throw err;
+
+                // Call next item in list after completion
+                insertSingle(data, iteration+1)
+            });
+        }
+    }
+
+    // Prepare data for use
+    let auditData = body.results.map(player => {
+        return {
+            matchNum    : body.matchNum,
+            groupID     : body.groupID,
+            deckID      : player.deckID,
+            newRating   : player.newRating
+        }
+    });
+
+    // Call first iteration
+    insertSingle(auditData, 0);
+}
+
+// Function to make calls to record match info
+async function createMatchRecord(body) {
+
+    // Prepare data for pass into database
+    let matchData = {
+        groupID     : body.groupID,
+        matchNum    : body.matchNum
+    };
+    body.results.forEach((result, index) => {
+        matchData['deck' + (index+1)] = result.deckID,
+        matchData['isWinner' + (index+1)] = result.isWinner
+    });
+
+    // Pass insert query to database
+    queryDB.insertGeneric('groupMatches', matchData, (err, results) => {
+        if(err) throw err;
+    })
+}
 
 module.exports = router;

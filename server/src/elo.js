@@ -3,124 +3,91 @@ const beta      = 25 / 6;
 const gamma     = beta / 100;
 const epsilon   = 0.0522218;
 
-// Class to represent single player
-class Player {
+// Function to take player statistics and generate new match
+module.exports.matchUpdate = (resultList) => {
 
-    // Class constructor
-    constructor(sigma, mu){
-        this.sigma      = sigma;
-        this.mu         = mu;
-    }
+    // Loop through players in results list
+    return resultList.map(player => {
 
-    // Elo skill curve properties
-    get rating()    { return this.mu - 3 * this.sigma; }
-}
+        let muStepSq = 0;
+        let sigmaStep = 1;
 
-// Class holding a player's result from a match
-class MatchResultSingle {
-
-    // Class constructor
-    constructor(player, result) {
-        this.player     = player;
-        this.muInit     = player.mu;
-        this.muStepSq   = 0;
-        this.sigmaInit  = player.sigma;
-        this.sigmaStep  = 1;
-        this.winner     = result;
-    }
-
-    // Function to update player histories
-    updatePlayer() {
-
-        this.player.mu = this.muInit + Math.sqrt(this.muStepSq) * (this.winner ? 1 : -1);
-        this.player.sigma = this.sigmaStep * Math.sqrt(this.sigmaInit**2 + gamma**2);
-    }
-}
-
-// Class holding all player's results from a match
-class MatchResults {
-
-    // Class constructor
-    constructor(resultArray=[]) {
-        this.results = resultArray;
-    }
-
-    // Add single result
-    addResult(newResult) {
-        this.results.push(newResult);
-    }
-
-    // Add array of results
-    addResultArray(newResult) {
-        this.results.push(...newResult);
-    }
-
-    // Get array of results
-    get resultArray() { return this.results; }
-
-    // Function to update all players in a match
-    newMatch(matchNumber) {
-
-        // Loop through players in match result
-        this.resultArray.forEach(player => {
+        // Loop through opponents
+        resultList.forEach(opponent => {
             
-            // Loop through all other players
-            this.resultArray.forEach(opponent => {
+            // Skip self
+            if(player === opponent) { return; }
 
-                // Skip self
-                if(player == opponent) { return; }
+            // If player is a winner, update using all components
+            if(player.isWinner) {
 
-                // If player is a winner, update using all opponents
-                if(player.winner) {
+                // Update statistics
+                muStepSq
+                    += muWinnerDelta(
+                        player, opponent, opponent.isWinner) ** 2;
+                sigmaStep 
+                    *= sigmaWinnerCoefficient(
+                        player, opponent, opponent.isWinner);
 
-                    // Determine if draw occurred
-                    let isDraw = opponent.winner;
+            // If player is not a winner, only update using winner(s)
+            } else if(opponent.isWinner) {
 
-                    // Update mean and variance
-                    player.muStepSq     += muWinnerDelta(player, opponent, isDraw) ** 2;
-                    player.sigmaStep    *= sigmaWinnerCoefficient(player, opponent, isDraw);
-
-                } else if(opponent.winner) {
-
-                    // Update mean and variance
-                    player.muStepSq     += muLoserDelta(player, opponent) ** 2;
-                    player.sigmaStep    *= sigmaLoserCoefficient(player, opponent);
-                }
-            });
-
-            // Update each player's ratings
-            player.updatePlayer(matchNumber);    
+                // Update statistics
+                muStepSq
+                    += muLoserDelta(
+                        player, opponent) ** 2;
+                sigmaStep
+                    *= sigmaLoserCoefficient(
+                        player, opponent);
+            }
         });
-    }
+
+        // Calculate statistic update
+        let newMu = 
+            player.mu + Math.sqrt(muStepSq) * (player.isWinner ? 1 : -1);
+        
+        let newSigma = 
+            player.sigma * Math.sqrt(sigmaStep**2 + gamma**2);
+
+        let newRating = Math.floor(100 * (newMu - 3*newSigma));
+
+        // Return updated object
+        let newPlayer = player;
+        newPlayer.mu = newMu;
+        newPlayer.sigma = newSigma;
+        newPlayer.newRating = newRating;
+        return newPlayer;
+    });
 }
+
 
 // Function to update mean of winner
 function muWinnerDelta(winner, loser, isDraw) { 
-    let c = 2 * (beta**2) + (winner.sigmaInit**2) + (loser.sigmaInit**2);
-    let muDelta = ((winner.sigmaInit**2 + gamma**2) / c) *
-        vFunction((winner.muInit - loser.muInit) / c, epsilon / c, isDraw);
+    let c = 2 * (beta**2) + (winner.sigma**2) + (loser.sigma**2);
+    let muDelta = ((winner.sigma**2 + gamma**2) / c) *
+        vFunction((winner.mu - loser.mu) / c, epsilon / c, isDraw);
     return muDelta;
 }
 // Function to update mean of loser
 function muLoserDelta(winner, loser) { 
-    let c = 2 * (beta**2) + (winner.sigmaInit**2) + (loser.sigmaInit**2);
-    let muDelta = -1 * ((winner.sigmaInit**2 + gamma**2) / c) *
-        vFunction((winner.muInit - loser.muInit) / c, epsilon / c, false);
+    let c = 2 * (beta**2) + (winner.sigma**2) + (loser.sigma**2);
+    let muDelta = ((winner.sigma**2 + gamma**2) / c) *
+        vFunction((winner.mu - loser.mu) / c, epsilon / c, false);
     return muDelta;
 
 }
 // Function to update variance of winner
 function sigmaWinnerCoefficient(winner, loser, isDraw) {
-    let c = 2 * (beta**2) + (winner.sigmaInit**2) + (loser.sigmaInit**2);
-    let sigmaCoeff = Math.sqrt(1 - ((winner.sigmaInit**2 + gamma**2) / (c**2)) *
-        wFunction((winner.muInit - loser.muInit) / c, epsilon / c, isDraw));
+    let c = 2 * (beta**2) + (winner.sigma**2) + (loser.sigma**2);
+    let sigmaCoeff = Math.sqrt(1 - ((winner.sigma**2 + gamma**2) / (c**2)) *
+        wFunction((winner.mu - loser.mu) / c, epsilon / c, isDraw));
     return sigmaCoeff;
 }
 // Function to update variance of loser
 function sigmaLoserCoefficient(winner, loser) {
-    let c = 2 * (beta**2) + (winner.sigmaInit**2) + (loser.sigmaInit**2);
-    let sigmaCoeff = Math.sqrt(1 - ((loser.sigmaInit**2 + gamma**2) / (c**2)) *
-        wFunction((winner.muInit - loser.muInit) / c, epsilon / c, false));
+    let c = 2 * (beta**2) + (winner.sigma**2) + (loser.sigma**2);
+    let sigmaCoeff = Math.sqrt(1 - ((loser.sigma**2 + gamma**2) / (c**2)) *
+        wFunction((winner.mu - loser.mu) / c, epsilon / c, false));
     return sigmaCoeff;
 }
 
@@ -207,9 +174,3 @@ function wFunction(t, eta, isDraw) {
     }
     return y;
 }
-
-
-// Export module methods
-exports.Player = Player;
-exports.MatchResults = MatchResults;
-exports.MatchResultSingle = MatchResultSingle;

@@ -43,7 +43,7 @@ module.exports.getFetchGeneric = async (req, res, tableName, key) => {
     try {
 
         // Pass query to database
-        module.exports.getGeneric(tableName, key, req.query[key], async (err, results) => {
+        module.exports.getGeneric(tableName, key, req.query[key].split(','), async (err, results) => {
 
             // Catch errors
             if(err) throw err;
@@ -72,7 +72,7 @@ module.exports.getFetchMax = async (req, res, tableName, key, keyMax) => {
     try {
 
         // Pass query to database
-        module.exports.getMax(tableName, key, req.query[key], keyMax, async (err, results) => {
+        module.exports.getMax(tableName, key, req.query[key].split(','), keyMax, async (err, results) => {
 
             // Catch errors
             if(err) throw err;

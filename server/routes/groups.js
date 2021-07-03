@@ -37,6 +37,7 @@ router.post('/adduser', async (req, res) => {
             } else {
 
                 let groupID = results.rows[0].groupID;
+                let groupName = results.rows[0].groupName;
 
                 // Check if user is already in group
                 queryDB.getGeneric('groupMembers', 'userID', req.body.userID, async (err, results) => {
@@ -49,7 +50,18 @@ router.post('/adduser', async (req, res) => {
 
                         // Query database
                         let keysValues = { userID : req.body.userID, groupID : groupID };
-                        queryDB.insertFetchGeneric(keysValues, res, 'groupMembers', null);
+                        queryDB.insertGeneric('groupMembers', keysValues, (err, results) => {
+                            
+                            // Handle errors
+                            if(err) throw err;
+
+                            // Pack data for return
+                            let returnData = keysValues;
+                            returnData.groupName = groupName;
+
+                            // Return group name on success
+                            res.status(201).json({rows: [returnData]});
+                        });
                     }
                 });
             }
@@ -84,7 +96,6 @@ router.get('/info', async (req, res) => {
 router.get('/users', async (req, res) => {
     queryDB.getFetchGeneric(req, res, 'groupMembers', 'groupID')
 });
-
 
 // Get list of decks in group
 router.get('/decks', async (req, res) => {

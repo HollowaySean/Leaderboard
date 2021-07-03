@@ -17,8 +17,8 @@ export default function Login(props) {
     const password = passwordRef.current.value;
 
     // Clear input fields
-    usernameRef.current.value = '';
-    passwordRef.current.value = '';
+    // usernameRef.current.value = '';
+    // passwordRef.current.value = '';
 
     // Make sure username is not blank
     if(username === '') { return; }
@@ -39,6 +39,7 @@ export default function Login(props) {
       switch(res.status) {
         case 201:
           messageRef.current.innerHTML = 'New user \'' + username + '\' created.';
+          handleLogin();
           break;
         case 409:
           messageRef.current.innerHTML = 'Username already exists.';

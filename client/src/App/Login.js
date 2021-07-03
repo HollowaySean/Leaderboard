@@ -30,7 +30,7 @@ export default function Login(props) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        name: username,
+        userName: username,
         password: password
       })
     }).then((res) => {
@@ -71,7 +71,7 @@ export default function Login(props) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        name: username,
+        userName: username,
         password: password
       })
     }).then(res => {

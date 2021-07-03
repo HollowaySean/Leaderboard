@@ -7,7 +7,7 @@ const app = express();
 const cors = require('cors');
 app.use(cors());
 
-// Routes
+// Custom routes for API
 const userRouter = require('./routes/users');
 app.use('/api/users', userRouter);
 
@@ -17,6 +17,7 @@ app.use('/api/groups', groupRouter);
 const deckRouter = require('./routes/decks');
 app.use('/api/decks', deckRouter);
 
+// Test route for verifying connectivity
 app.get('/api/test', async (req, res) => {
     res.status(201).send('Success!');
 });

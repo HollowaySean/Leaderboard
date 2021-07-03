@@ -28,7 +28,8 @@ export default function GroupList(props) {
                 case 200:
                     res.json()
                     .then((body) => {
-                        setIDList(body)
+                        console.log(body);
+                        setIDList(body.rows)
                     });
                     break;
                 default:
@@ -47,14 +48,18 @@ export default function GroupList(props) {
 
             fetch(props.API_ROUTE + '/groups/info?groupID=' + idList)
             .then((res) => {
+
+                console.log(res);
         
                 // Handle HTTP status codes
                 switch(res.status) {
                 case 200:
                     res.json()
                     .then((body) => {
-                        infoList = body;
-                        setNameList(body.groupName);
+                        console.log(idList);
+                        console.log(body);
+                        infoList = body.rows[0];
+                        setNameList(body.rows[0].groupName);
                     });
                     break;
                 default:
@@ -105,10 +110,10 @@ export default function GroupList(props) {
                 .then((body) => {
                     
                     newGroupRef.current.value = '';
-                    messageRef.current.innerHTML = 'Created new group \'' + body.groupName + '\'';
+                    messageRef.current.innerHTML = 'Created new group \'' + body.rows[0].groupName + '\'';
 
                     // Add self to group
-                    joinGroup(body.inviteCode);
+                    joinGroup(body.rows[0].inviteCode);
                 });
                 break;
             default:
@@ -149,12 +154,12 @@ export default function GroupList(props) {
                     res.json()
                     .then((body) => {
                         
-                        infoList.push(body);
-                        var joinedNames = [nameList, body.groupName];
+                        infoList.push(body.rows);
+                        var joinedNames = [nameList, body.rows[0].groupName];
                         setNameList(joinedNames);
                         newGroupRef.current.value = '';
 
-                        messageRef.current.innerHTML += '<br />Added user to group \'' + body.groupName + '\'';
+                        messageRef.current.innerHTML += '<br />Added user to group \'' + body.rows[0].groupName + '\'';
                     });
                     break;
                 case 400:

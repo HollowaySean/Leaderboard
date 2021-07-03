@@ -5,7 +5,7 @@ import App from './App/App';
 ReactDOM.render(
   <React.StrictMode>
     <App 
-      API_ROUTE='https://leaderboard.seanholloway.com/api'
+      API_ROUTE='http://localhost:8081/api'
     />
   </React.StrictMode>,
   document.getElementById('root')

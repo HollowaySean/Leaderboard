@@ -34,7 +34,7 @@ module.exports.executeQuery = async (queryString, callback) => {
 module.exports.getGeneric = async (tableName, key, values, callback) => {
 
     // Pass query to database
-    let queryString = `SELECT * FROM ` + tableName + ` WHERE ` + key + ` IN (` + values + `);`
+    let queryString = `SELECT * FROM ` + mysql.escapeId(tableName) + ` WHERE ` + mysql.escapeId(key) + ` IN (` + mysql.escape(values) + `);`
     module.exports.executeQuery(queryString, callback);
 }
 
@@ -63,7 +63,7 @@ module.exports.getFetchGeneric = async (req, res, tableName, key) => {
 module.exports.getMax = async (tableName, key, values, keyMax, callback) => {
 
     // Pass query to database
-    let queryString = `SELECT MAX(` + keyMax + `) AS maxVal FROM ` + tableName + ` WHERE ` + key + ` IN (` + values + `);`
+    let queryString = `SELECT MAX(` + mysql.escapeId(keyMax) + `) AS maxVal FROM ` + mysql.escapeId(tableName) + ` WHERE ` + mysql.escapeId(key) + ` IN (` + mysql.escape(values) + `);`
     module.exports.executeQuery(queryString, callback);
 }
 
@@ -92,7 +92,7 @@ module.exports.getFetchMax = async (req, res, tableName, key, keyMax) => {
 module.exports.insertGeneric = async (tableName, keysValues, callback) => {
 
     // Pass query string to database
-    let queryString = `INSERT INTO ` + tableName + ` (` + Object.keys(keysValues) + `) VALUES (` + mysql.escape(Object.values(keysValues)) +`);`
+    let queryString = `INSERT INTO ` + mysql.escapeId(tableName) + ` (` + mysql.escapeId(Object.keys(keysValues)) + `) VALUES (` + mysql.escape(Object.values(keysValues)) +`);`
     module.exports.executeQuery(queryString, callback);
 }
 

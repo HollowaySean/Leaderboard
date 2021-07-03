@@ -29,7 +29,7 @@ router.post('/create', async (req, res) => {
             // Generate hash for password
             const salt = await bcrypt.genSalt();
             const hashedPassword = await bcrypt.hash(req.body.password, salt);
-    
+
             // Add username and hash to database
             if(results.rows.length === 0){
 
@@ -47,8 +47,9 @@ router.post('/create', async (req, res) => {
 // Validate login
 router.post('/login', async (req, res) => {
     try {
+
         // Search for username in database
-        queryDB.getGeneric('users', 'userName', req.body.name, async (err, results) => {
+        queryDB.getGeneric('users', 'userName', req.body.userName, async (err, results) => {
 
             // Check if username exists
             if(results.rows.length == 0) {

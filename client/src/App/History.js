@@ -78,7 +78,7 @@ export default function History(props) {
     }
 
 
-    function retrieveMatchHistory() {
+    async function retrieveMatchHistory() {
 
         // Fetch request
         fetch(props.API_ROUTE + '/groups/audit?groupID=' + props.groupID)

@@ -127,7 +127,7 @@ router.post('/newmatch', async(req, res) => {
         // Add match to database
         createMatchRecord(req.body)
         .then(createAuditRecord(req.body))
-        .then(console.log('STILL NEED TO UPDATE DECK INFO'))
+        .then(updateDeckStatistics(req.body))
 
         // Return modified body
         .then(res.status(201).json({rows : req.body}));
@@ -187,6 +187,43 @@ async function createMatchRecord(body) {
     queryDB.insertGeneric('groupMatches', matchData, (err, results) => {
         if(err) throw err;
     })
+}
+
+// Function to edit deck's previous score
+async function updateDeckStatistics(body) {
+
+    // Loop asynchronously through list
+    // (Note: is asynchrony necessary?)
+    let iteration = 0;
+    let updateSingle = async (data, iteration) => {
+
+        if(iteration < data.length) {
+
+            // Query database to add single deck record
+            let queryString = `UPDATE groupDecks 
+                SET mu = ` + data[iteration].mu + `, sigma = ` + data[iteration].sigma + ` 
+                WHERE deckID = ` + data[iteration].deckID + ` AND groupID = ` + data[iteration].groupID + `;`;
+            queryDB.executeQuery(queryString, (err, results) => {
+                if(err) throw err;
+
+                // Call next item in list after completion
+                updateSingle(data, iteration+1)
+            });
+        }
+    }
+
+    // Prepare data for use
+    let updateData = body.results.map(player => {
+        return {
+            groupID : body.groupID,
+            deckID  : player.deckID,
+            mu      : player.mu,
+            sigma   : player.sigma
+        }
+    });
+
+    // Call first iteration
+    updateSingle(updateData, 0);
 }
 
 module.exports = router;

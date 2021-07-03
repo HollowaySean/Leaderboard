@@ -17,6 +17,13 @@ export default function Leaderboard(props) {
 
         // Convert string to JSON
         infoList = props.deckList ? JSON.parse(props.deckList) : [];
+        
+        // Set message if empty
+        if(infoList.length === 0) {
+            messageRef.current.innerHTML = 'There are no decks in this group.'
+        }else{
+            messageRef.current.innerHTML = '';
+        }
 
         // Set up leaderboard JSX 
         let rating = (mu, sigma) => mu - 3*sigma;
@@ -35,16 +42,6 @@ export default function Leaderboard(props) {
         ));
 
     }, [props.deckList]);
-
-    // Set message if infoList goes to zero
-    useEffect(() => {
-        if(!infoList || infoList.length === 0) {
-            messageRef.current.innerHTML = 'There are no decks in this group.'
-            setLeaderboardInfo(null);
-        }else{
-            messageRef.current.innerHTML = '';
-        }
-    }, [setLeaderboardInfo]);
 
     // Return JSX tags
     return (

@@ -30,8 +30,10 @@ export default function GroupList(props) {
                 switch(res.status) {
                 case 200:
                     res.json()
-                    .then((body) => 
-                        setIDList(body.rows.map(element => element.groupID)));
+                    .then((body) => {
+                        messageRef.current.innerHTML = '';
+                        setIDList(body.rows.map(element => element.groupID))
+                    });
                     break;
                 default:
                     console.log('Unknown HTTP response: ' + res.status);

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import UserList from './UserList'
 import DeckList from './DeckList'
 import Leaderboard from './Leaderboard'
-// import History from './History'
+import History from './History'
 
 export default function GroupInfo(props) {
 
@@ -32,11 +32,11 @@ export default function GroupInfo(props) {
                 matchNum={matchNum}
                 matchNumCallback={setMatchNum}
                 deckListCallback={setDeckList}/>
-            {/* <History
+            <History
                 API_ROUTE={props.API_ROUTE}
                 groupID={props.groupID}
                 deckList={deckList}
-                matchNumCallback={setMatchNum}/> */}
+                matchNumCallback={setMatchNum}/>
             </>
         )
     }else{

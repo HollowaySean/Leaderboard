@@ -30,6 +30,7 @@ h4 {
 
 .grid-row > div > button {
     margin: 0;
+    overflow: hidden;
 }
 
 .match-container > button {

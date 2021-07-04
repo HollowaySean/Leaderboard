@@ -1,10 +1,9 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import '../Styles/panel.css';
 import { LineChart, XAxis, YAxis, Tooltip, Line, CartesianGrid, ResponsiveContainer } from 'recharts';
 
+let infoList = [];
 let history = [];
-let series = null;
-let dataLim = [0, 0];
 
 let colorList = [
     '#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#77AC30', '#4DBEEE', '#A2142F'
@@ -15,11 +14,66 @@ export default function History(props) {
     // Set up react hooks
     const messageRef = useRef();
 
-    // Get deck history
-    retrieveMatchHistory();
+    // Set state hooks
+    const [lines, setLines] = useState(null);
+    const [yLimit, setYLimit] = useState([0, 0]);
 
-    // Set up decklist
-    let deckList = eval(props.deckList);
+    // Unpack string each time deckList is updated
+    useEffect(() => {
+
+        // Convert string to JSON
+        infoList = props.deckList ? JSON.parse(props.deckList) : [];
+        
+        // Set message if empty
+        if(infoList.length === 0) {
+            messageRef.current.innerHTML = 'There are no decks in this group.'
+        }else{
+            messageRef.current.innerHTML = '';
+        }
+        
+    }, [props.deckList]);
+
+    // On initialize or groupID change, retrieve match history
+    useEffect(() => {
+
+        // Fetch match history
+        async function retrieveMatchHistory() {
+
+            // Fetch request
+            fetch(props.API_ROUTE + '/groups/audit?groupID=' + props.groupID)
+            .then((res) => {
+        
+                // Handle HTTP status codes
+                switch(res.status) {
+                case 200:
+                    res.json()
+                    .then((body) => {
+                        findLastMatchNum(body.rows);
+                        auditToSeries(body.rows);
+                        messageRef.current.innerHTML = '';
+                    });
+                    break;
+                default:
+                    console.log('Unknown HTTP response: ' + res.status);
+                }
+            })
+            .catch((error) => {
+
+                // Catch HTTP errors
+                messageRef.current.innerHTML = 'Error obtaining user groups.';
+            });
+        }
+
+        // Function to get latest match number
+        function findLastMatchNum(audit) {
+            let newMatchNum = audit === undefined ? 0 : audit.sort((a, b) => (a.matchNum < b.matchNum) ? 1 : -1)[0].matchNum;
+            props.matchNumCallback(newMatchNum);
+        }
+
+        // Call function
+        retrieveMatchHistory();
+        
+    }, [props.groupID, props.API_ROUTE, props.deckList]);
 
     // Function to turn audit info into data series
     function auditToSeries(audit) {
@@ -44,7 +98,7 @@ export default function History(props) {
                 if(found === -1) {
                     matchRecord[element] = history[i-1][element];
                 } else {
-                    matchRecord[element] = audit[found].newRating*100;
+                    matchRecord[element] = audit[found].newRating;
                 }
             });
             history.push(matchRecord);
@@ -52,12 +106,11 @@ export default function History(props) {
 
         // Generate data limits
         let sortedScores = audit.sort((a, b) => (a.newRating < b.newRating) ? 1 : -1);
-        dataLim = [100 * sortedScores[sortedScores.length-1].newRating, 100 * sortedScores[0].newRating];
+        setYLimit([sortedScores[sortedScores.length-1].newRating, sortedScores[0].newRating]);
 
         // Generate JSX of line series
-        series = (idList.map((element, index) => {
-            if(deckList === undefined) { deckList = [] }
-            let newName = deckList.length === 0 ? '' : deckList.find((el) => el.deckID === element).deckName;
+        setLines(idList.map((element, index) => {
+            let newName = infoList.length === 0 ? '' : infoList.find((el) => el.deckID === element).deckName;
             return (
             <Line 
                 name={newName}
@@ -69,39 +122,6 @@ export default function History(props) {
                 stroke={colorList[index % colorList.length]}
             />
         )}));
-    }
-
-    // Function to get latest match number
-    function findLastMatchNum(audit) {
-        let newMatchNum = audit.sort((a, b) => (a.matchNum < b.matchNum) ? 1 : -1)[0].matchNum;
-        props.matchNumCallback(newMatchNum);
-    }
-
-
-    async function retrieveMatchHistory() {
-
-        // Fetch request
-        fetch(props.API_ROUTE + '/groups/audit?groupID=' + props.groupID)
-        .then((res) => {
-    
-            // Handle HTTP status codes
-            switch(res.status) {
-            case 200:
-                res.json()
-                .then((body) => {
-                    findLastMatchNum(body);
-                    auditToSeries(body);
-                });
-                break;
-            default:
-                console.log('Unknown HTTP response: ' + res.status);
-            }
-        })
-        .catch((error) => {
-
-            // Catch HTTP errors
-            messageRef.current.innerHTML = 'Error obtaining user groups.';
-        });
     }
 
     // Return JSX
@@ -117,18 +137,8 @@ export default function History(props) {
                                 margin={{top: 20, right: 20, left: 20, bottom: 20}}
                             >
                             <CartesianGrid stroke='#f5f5f5' />
-                            {series}
+                            {lines}
                             <Tooltip 
-                                formatter={
-                                    (value, name, props) => {
-                                        let newNameObj = deckList.find((element) => (element.deckID === name));
-                                        return [
-                                            Math.round(value),
-                                            newNameObj === undefined ? '' : newNameObj.deckName,
-                                            props
-                                        ]
-                                    }
-                                }
                                 labelFormatter={
                                     (name) => name === 0 ? "" : "Match " + name
                                 }
@@ -141,7 +151,7 @@ export default function History(props) {
                             />
                             <YAxis 
                                 type="number"
-                                domain={[100*Math.floor(dataLim[0]/100), 100*Math.ceil(dataLim[1]/100)]}
+                                domain={yLimit}
                                 scale="linear"
                             />
                         </LineChart>

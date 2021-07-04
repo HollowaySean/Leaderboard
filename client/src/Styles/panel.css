@@ -38,6 +38,7 @@ html, body {
 
 .panel-v-container {
     height: 100%;
+    flex: 0 1 400px;
 }
 
 .panel-v-container > .panel {

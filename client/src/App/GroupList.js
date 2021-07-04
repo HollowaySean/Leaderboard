@@ -1,7 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react'
 import '../Styles/panel.css'
 
+// Initializations
 let infoList = [];
+let table = null;
 
 export default function GroupList(props) {
 
@@ -13,8 +15,9 @@ export default function GroupList(props) {
     // Set state variables
     const [idList, setIDList] = useState(null);
     const [nameList, setNameList] = useState([]);
+    const [highlightID, setHighlightID] = useState(null);
 
-    // Retrieve group list via useeffect and fetch
+    // On initialize or userID change, retrieve group list
     useEffect(() => {
 
         // Fetch list of groups
@@ -28,7 +31,8 @@ export default function GroupList(props) {
                 case 200:
                     res.json()
                     .then((body) => {
-                        setIDList(body)
+                        messageRef.current.innerHTML = '';
+                        setIDList(body.rows.map(element => element.groupID))
                     });
                     break;
                 default:
@@ -42,8 +46,16 @@ export default function GroupList(props) {
             });
         }
 
+        // Call function
+        retrieveGroupList();
+
+    }, [props.API_ROUTE, props.userID]);
+
+    // On retrieving or changing the group ID list, get the group names and info
+    useEffect(() => {
+
         // Fetch group names
-        function retrieveGroupNames() {
+        async function retrieveGroupNames() {
 
             fetch(props.API_ROUTE + '/groups/info?groupID=' + idList)
             .then((res) => {
@@ -53,8 +65,8 @@ export default function GroupList(props) {
                 case 200:
                     res.json()
                     .then((body) => {
-                        infoList = body;
-                        setNameList(body.groupName);
+                        infoList = body.rows;
+                        setNameList(infoList.map(element => element.groupName));
                     });
                     break;
                 default:
@@ -68,26 +80,33 @@ export default function GroupList(props) {
             });
         }
 
-        // Get group list if empty, otherwise grab list of names
-        if(idList === null){
+        // Call function
+        retrieveGroupNames();
 
-            retrieveGroupList()
-        } else if(idList.length === 0){
+    }, [idList, props.API_ROUTE])
 
+    // Set message on first load
+    useEffect(() => {
+
+        // Set message
+        messageRef.current.innerHTML = "Click group name to show leaderboard.";
+
+    }, []);
+
+    // Set message if idList goes to zero
+    useEffect(() => {
+
+        // Set message
+        if(!idList || idList.length === 0){
             messageRef.current.innerHTML = "You are not a member of any groups.";
-        } else {
-
-            // Get group names in this case
-            messageRef.current.innerHTML = 'Click group name to show leaderboard.';
-            retrieveGroupNames();
         }
-
-    }, [idList, props.API_ROUTE, props.userID]);
+    })
 
     // Callback function to handle creating a new group
     function HandleCreateGroup(e) {
 
-        if(newGroupRef.current.value === '') {return;}
+        if(newGroupRef.current.value === '') { return; }
+
         fetch(props.API_ROUTE + '/groups/create', {
             method: 'POST',
             headers: {
@@ -105,10 +124,10 @@ export default function GroupList(props) {
                 .then((body) => {
                     
                     newGroupRef.current.value = '';
-                    messageRef.current.innerHTML = 'Created new group \'' + body.groupName + '\'';
+                    messageRef.current.innerHTML = 'Created new group \'' + body.rows[0].groupName + '\'';
 
                     // Add self to group
-                    joinGroup(body.inviteCode);
+                    joinGroup(body.rows[0].inviteCode);
                 });
                 break;
             default:
@@ -138,8 +157,8 @@ export default function GroupList(props) {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              inviteCode: inviteCode,
-              userID : props.userID
+              inviteCode : inviteCode,
+              userID     : props.userID
             })
           }).then((res) => {
     
@@ -148,17 +167,22 @@ export default function GroupList(props) {
                 case 201:
                     res.json()
                     .then((body) => {
-                        
-                        infoList.push(body);
-                        var joinedNames = [nameList, body.groupName];
-                        setNameList(joinedNames);
-                        newGroupRef.current.value = '';
 
-                        messageRef.current.innerHTML += '<br />Added user to group \'' + body.groupName + '\'';
+                        // Update lists
+                        setIDList(idList.concat([body.rows[0].groupID]))
+                        setNameList(nameList.concat([body.rows[0].groupName]))
+                        props.groupIDCallback(body.rows[0].groupID);
+                        setHighlightID(body.rows[0].groupID);
+
+                        newGroupRef.current.value = '';
+                        messageRef.current.innerHTML += '<br />Added user to group \'' + body.rows[0].groupName + '\'';
                     });
                     break;
                 case 400:
                     messageRef.current.innerHTML = 'No group found with invite code.'
+                    break;
+                case 409:
+                    messageRef.current.innerHTML = 'You are already in this group.';
                     break;
                 default:
                     console.log('Unknown HTTP response: ' + res.status);
@@ -173,6 +197,7 @@ export default function GroupList(props) {
 
     // Callback function to handle joining a new group
      function HandleJoinGroup(e) {
+
         messageRef.current.innerHTML = '';
         joinGroup(inviteRef.current.value);
         inviteRef.current.value = '';
@@ -190,12 +215,19 @@ export default function GroupList(props) {
                             <th>Invite Code</th>
                         </tr>
                         {infoList
-                        .map(element => (
-                            <tr key={element.groupID}>
-                                <td id="clickable" onClick={() => props.groupIDCallback(element.groupID)}>{element.groupName}</td>
-                                <td>{element.inviteCode}</td>
-                            </tr>
-                        ))}
+                        .map((element, index) => {
+                            let myName = (element.groupID === highlightID)
+                                ? (<b>{element.groupName}</b>)
+                                : element.groupName;
+                            return (
+                                <tr key={index}>
+                                    <td id="clickable" onClick={() => {
+                                        setHighlightID(element.groupID);
+                                        props.groupIDCallback(element.groupID);
+                                    }}>{myName}</td>
+                                    <td>{element.inviteCode}</td>
+                                </tr>
+                            )})}
                     </tbody></table>
                 </div>
                     <p ref={messageRef}></p>

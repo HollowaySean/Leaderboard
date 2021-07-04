@@ -20,7 +20,7 @@ function App(props) {
     if("userID" in localStorage && !checkedLogin) {
       let newUserID = parseInt(localStorage.getItem("userID"));
       checkedLogin = true;
-      loginComplete(newUserID, false);
+      loginComplete(newUserID, true);
     }
   }, []);
 
@@ -39,9 +39,17 @@ function App(props) {
     }
   }
 
-  // Callback function to choose group to examine
-  function groupChosen(newGroupID) {
-    setGroupID(newGroupID);
+  // Callback function for logging out
+  function logoutCallback() {
+
+    // Set state variables
+    setLoggedIn(false);
+    setGroupID(null);
+    setUserID(null);
+
+    // Remove from local storage
+    localStorage.removeItem('userID');
+
   }
 
   // JSX return
@@ -51,12 +59,8 @@ function App(props) {
       <GroupList 
         API_ROUTE={props.API_ROUTE} 
         userID={userID}
-        groupIDCallback={groupChosen}
-        logoutCallback={() => {
-          setLoggedIn(false);
-          setGroupID(null);
-          setUserID(null);
-        }}
+        groupIDCallback={setGroupID}
+        logoutCallback={logoutCallback}
       />
       <GroupInfo
         API_ROUTE={props.API_ROUTE}

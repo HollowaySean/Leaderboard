@@ -13,17 +13,12 @@ export default function DeckList(props) {
     const [nameList, setNameList] = useState([]);
     const [ownerList, setOwnerList] = useState([]);
 
-    useEffect(() => {
-    if(props.needUpdate) {
-        resetStates();
-    }
-    }, [props.needUpdate]);
-
-    // Retrieve user list via useeffect and fetch
+    // On initialize, groupID, or userID change, retrieve deck list
     useEffect(() => {
 
-        // Fetch list of groups
-        function retrieveDeckList() {
+        // Fetch list of decks
+        async function retrieveDeckList() {
+
             fetch(props.API_ROUTE + '/groups/decks?groupID=' + props.groupID)
             .then((res) => {
         
@@ -32,8 +27,9 @@ export default function DeckList(props) {
                 case 200:
                     res.json()
                     .then((body) => {
-                        infoList = body;
-                        setIDList(body.length > 0 ? body.map(element => element.deckID) : []);
+                        infoList = body.rows;
+                        setIDList(body.rows.map(element => element.deckID));
+                        messageRef.current.innerHTML = '';
                     });
                     break;
                 default:
@@ -47,8 +43,16 @@ export default function DeckList(props) {
             });
         }
 
+        // Call function
+        retrieveDeckList();
+
+    }, [props.API_ROUTE, props.groupID, props.userID]);
+
+    // On retrieving or changing the deck ID list, get deck names and info
+    useEffect(() => {
+
         // Fetch deck names
-        function retrieveDeckNames() {
+        async function retrieveDeckNames() {
             fetch(props.API_ROUTE + '/decks/names?deckID=' + idList)
             .then((res) => {
         
@@ -57,10 +61,12 @@ export default function DeckList(props) {
                 case 200:
                     res.json()
                     .then((body) => {
-                        for(let i = 0; i < infoList.length; i++) {
-                            infoList[i].deckName = body[i].deckName;
-                        }
-                        setNameList(body.deckName);
+                        infoList.forEach(element => {
+                            let foundRow = body.rows.find(deck => deck.deckID === element.deckID);
+                            element.deckName = foundRow ? foundRow.deckName : null;
+                        });
+                        setNameList(infoList.map(element => element.deckName));
+                        retrieveDeckOwners();
                     });
                     break;
                 default:
@@ -75,7 +81,7 @@ export default function DeckList(props) {
         }
 
         // Fetch deck owners
-        function retrieveDeckOwners() {
+        async function retrieveDeckOwners() {
             fetch(props.API_ROUTE + '/users/names?userID=' + infoList.map(element => element.userID))
             .then((res) => {
         
@@ -84,10 +90,11 @@ export default function DeckList(props) {
                 case 200:
                     res.json()
                     .then((body) => {
-                        for(let i = 0; i < infoList.length; i++) {
-                            infoList[i].userName = body.find(item => { return item.userID === infoList[i].userID}).userName;
-                        }
-                        setOwnerList(body.userName);
+                        infoList.forEach(element => {
+                            let foundRow = body.rows.find(user => user.userID === element.userID);
+                            element.userName = foundRow ? foundRow.userName : null;
+                        });
+                        setOwnerList(infoList.map(element => element.userName));
                     });
                     break;
                 default:
@@ -101,47 +108,30 @@ export default function DeckList(props) {
             });
         }
 
-        // Async function to update other parts
-        async function updateDeckNameAndOwners() {
-            retrieveDeckNames();
-            retrieveDeckOwners();
-        }
+        retrieveDeckNames();
 
-        // Get user list if empty, otherwise grab list of names
-        if(idList === null){
+    }, [idList, props.API_ROUTE]);
 
-            retrieveDeckList()
-        } else if(idList.length === 0){
-
-            messageRef.current.innerHTML = "There are no decks in this group.";
-        } else {
-
-            // Get user names in this case
-            updateDeckNameAndOwners()
-            .then(() => props.deckListCallback(JSON.stringify(infoList)));
-        }
-
-    }, [idList, nameList, ownerList, props.API_ROUTE]);
-
-    // Function to reset states
-    function resetStates() {
-        messageRef.current.innerHTML = '';
-        infoList = [];
-        setIDList(null)
-        setNameList([]);
-        setOwnerList([]);
-    }
-
-    // Callback for changing selected group
+    // When ownerlist is set, pass infolist up the chain
     useEffect(() => {
-        resetStates();
-        props.deckListCallback('');
-    }, [props.groupID]);
+        props.deckListCallback(JSON.stringify(infoList));
+    }, [ownerList])
+
+    // Set message if idList goes to zero
+    useEffect(() => {
+
+        // Set message
+        if(!idList || idList.length === 0) {
+            messageRef.current.innerHTML = "There are no decks in this group.";
+        }
+    });
 
     // Callback function to handle creating a new deck
     function HandleCreateDeck(e) {
 
         if(newDeckRef.current.value === '') { return; }
+
+        let deckName = newDeckRef.current.value;
 
         fetch(props.API_ROUTE + '/decks/create', {
             method: 'POST',
@@ -149,7 +139,7 @@ export default function DeckList(props) {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              deckName : newDeckRef.current.value,
+              deckName : deckName,
               userID : props.userID
             })
           }).then((res) => {
@@ -161,11 +151,16 @@ export default function DeckList(props) {
                 .then((body) => {
                     
                     newDeckRef.current.value = '';
-                    messageRef.current.innerHTML = 'Created new deck \'' + body.deckName + '\'';
+                    messageRef.current.innerHTML = 'Created new deck \'' + deckName + '\'';
 
                     // Add deck to group
-                    addDeckToGroup(body.deckID);
+                    addDeckToGroup(body.rows[0].deckID, deckName);
                 });
+                break;
+            case 409:
+                // Report collision error
+                newDeckRef.current.innerHTML = '';
+                messageRef.current.innerHTML = 'User already has deck with name \'' + deckName + '\'';
                 break;
             default:
                 console.log('Unknown HTTP response: ' + res.status);
@@ -176,46 +171,43 @@ export default function DeckList(props) {
             // Catch HTTP errors
             messageRef.current.innerHTML = 'Error creating deck.';
         });
+    }
 
-        // Callback function to add deck to group
-        function addDeckToGroup(deckID) {
-            // Fetch request to add user to group
-            fetch(props.API_ROUTE + '/groups/adddeck', {
-                method: 'POST',
-                headers: {
-                'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    groupID : props.groupID,
-                    userID : props.userID,
-                    deckID : deckID
-                })
-            }).then((res) => {
-
-                console.log("here");
-        
-                // Handle HTTP status codes
-                switch(res.status) {
-                case 201:
-                    res.json()
-                    .then((body) => {
-                        
-                        // Force refresh
-                        // props.needUpdateCallback(true);
-                        resetStates();
-                    });
-                    break;
-                default:
-                    console.log('Unknown HTTP response: ' + res.status);
-                }
+    // Callback function to add deck to group
+    function addDeckToGroup(deckID, deckName) {
+        // Fetch request to add user to group
+        fetch(props.API_ROUTE + '/groups/adddeck', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                groupID : props.groupID,
+                userID : props.userID,
+                deckID : deckID
             })
-            .catch((error) => {
+        }).then((res) => {
+    
+            // Handle HTTP status codes
+            switch(res.status) {
+            case 201:
+                res.json()
+                .then((body) => {
+                    
+                    // Update lists
+                    setIDList(idList.concat([body.rows[0].deckID]));
+                    setNameList(nameList.concat([deckName]));
+                });
+                break;
+            default:
+                console.log('Unknown HTTP response: ' + res.status);
+            }
+        })
+        .catch((error) => {
 
-                // Catch HTTP errors
-                messageRef.current.innerHTML = 'Error adding deck to group.';
-            });
-        }
-
+            // Catch HTTP errors
+            messageRef.current.innerHTML = 'Error adding deck to group.';
+        });
     }
 
     // Return JSX

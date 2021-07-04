@@ -28,6 +28,7 @@ html, body {
     flex: 0 1 400px;
     width: auto;
     height: 100%;
+    overflow-y: auto;
 }
 
 .panel-wide {
@@ -37,6 +38,7 @@ html, body {
 
 .panel-v-container {
     height: 100%;
+    flex: 0 1 400px;
 }
 
 .panel-v-container > .panel {
@@ -143,7 +145,7 @@ button {
     justify-content: center;
     height: auto;
     width: inherit;
-    max-height: 50vh;
+    max-height: 30vh;
     overflow-y: auto;
 }
 
@@ -153,7 +155,11 @@ button {
     justify-content: center;
     height: auto;
     width: inherit;
-    max-height: 30vh;
+    max-height: 20vh;
+    overflow-y: auto;
+}
+
+.panel-v-container > .panel {
     overflow-y: auto;
 }
 

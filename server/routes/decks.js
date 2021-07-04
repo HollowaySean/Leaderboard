@@ -1,44 +1,32 @@
 // Module requirements
-const { query } = require('express');
 const express   = require('express');
 const router    = express.Router();
 const queryDB   = require('../src/queryDB');
 router.use(express.json());
 
 // Get deck names from deckID list
-router.get('/names', async (req, res) => {
-    try {
-
-        // Search userID in database
-        queryDB.deckWithID(req.query.deckID, (queryResult) => {
-
-            // Return list of user names
-            res.status(200).json(queryResult);
-        })
-
-    } catch {
-        res.status(500).send();
-    }
+router.get('/names', async (req, res) => { 
+    queryDB.getFetchGeneric(req, res, 'decks', 'deckID');
 });
 
 // Create new deck
 router.post('/create', async (req, res) => {
     try {
 
-        // Search userID in database
-        queryDB.createDeck(req.body.deckName, req.body.userID, (queryResult) => {
-            
-            // Return list of user names
-            res.status(201).json({
-                deckID      : queryResult.insertId,
-                deckName    : req.body.deckName,
-                userID      : req.body.userID
-            });
-        })
+        // Check if user already has deck with name
+        queryDB.getGeneric('decks', 'userID', req.body.userID, async (err, results) => {
 
-    } catch {
-        res.status(500).send();
-    }
+            // If name is unique, insert into database
+            if(results.rows.find(element => element.deckName === req.body.deckName)) {
+
+                res.status(409).send('User already has deck with name \'' + req.body.deckName + '\'');
+            } else {
+
+                queryDB.insertFetchGeneric(req.body, res, 'decks', 'deckID');
+            }
+        });
+
+    } catch { res.status(500).send(); }
 });
 
 module.exports = router;

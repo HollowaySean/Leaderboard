@@ -195,8 +195,14 @@ export default function DeckList(props) {
                 .then((body) => {
                     
                     // Update lists
+                    let newData = body.rows[0];
+                    newData.mu = 25;
+                    newData.sigma = 25 / 3;
+                    newData.deckName = deckName;
+                    infoList.push(newData);
                     setIDList(idList.concat([body.rows[0].deckID]));
-                    setNameList(nameList.concat([deckName]));
+                    // setNameList(nameList.concat([deckName]));
+                    // setOwnerList(ownerList.concat([props.userID]))
                 });
                 break;
             default:

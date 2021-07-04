@@ -30,7 +30,6 @@ export default function Leaderboard(props) {
         let sortedList = infoList.sort((a, b) => (rating(a.mu, a.sigma) > rating(b.mu, b.sigma) ? -1 : 1));
         setLeaderboardInfo
             (sortedList.map((element, index) => {
-                console.log(element);
                 return (
                 <tr key={element.deckID}>
                     <td>{index+1}</td>

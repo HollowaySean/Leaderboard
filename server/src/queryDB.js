@@ -7,14 +7,43 @@
 // Connect to database
 
 const mysql = require('mysql');
-const db = mysql.createConnection({
+const db_config = {
 	host: process.env.DB_HOST,
     	user: process.env.DB_USER,
     	password: process.env.DB_PASS,
     	database: process.env.DB_NAME,
     	connectionLimit: 10
-});
-db.connect();
+};
+var db;
+
+// Connect to database and handle mySQL server restarts
+var handleDisconnect = () => {
+
+    // Recreate connection
+    db = mysql.createConnection(db_config);
+
+    // Catch disconnection
+    db.connect((err) => {
+        if(err) {
+            console.log('Error connecting to mySQL database:', err);
+            setTimeout(handleDisconnect, 2000);
+        }
+    });
+
+    // Catch connection errors
+    db.on('error', (err) => {
+        console.log('Database error:', err);
+        if(err.code === 'PROTOCOL_CONNECTION_LOST') {
+            handleDisconnect();
+        } else {
+            throw err;
+        }
+    });
+};
+
+// Start connection handling function
+handleDisconnect();
+
 
 // Generic function to make queries
 module.exports.executeQuery = async (queryString, callback) => {

@@ -66,8 +66,12 @@ export default function History(props) {
 
         // Function to get latest match number
         function findLastMatchNum(audit) {
-            let newMatchNum = audit === undefined ? 0 : audit.sort((a, b) => (a.matchNum < b.matchNum) ? 1 : -1)[0].matchNum;
-            props.matchNumCallback(newMatchNum);
+            if(audit.length > 0) {
+                let newMatchNum = audit === undefined ? 0 : audit.sort((a, b) => (a.matchNum < b.matchNum) ? 1 : -1)[0].matchNum;
+                props.matchNumCallback(newMatchNum);
+            } else {
+                props.matchNumCallback(0);
+            }
         }
 
         // Call function
@@ -79,7 +83,10 @@ export default function History(props) {
     function auditToSeries(audit) {
         
         // Determine object axes
-        let newMatchNum = audit.sort((a, b) => (a.matchNum < b.matchNum) ? 1 : -1)[0].matchNum;
+        let newMatchNum = 0;
+        if(audit.length > 0) {
+            newMatchNum = audit.sort((a, b) => (a.matchNum < b.matchNum) ? 1 : -1)[0].matchNum;
+        }
         let idList = [...new Set(audit.map(element => element.deckID))];
 
         // Generate initial data
@@ -106,7 +113,9 @@ export default function History(props) {
 
         // Generate data limits
         let sortedScores = audit.sort((a, b) => (a.newRating < b.newRating) ? 1 : -1);
-        setYLimit([sortedScores[sortedScores.length-1].newRating, sortedScores[0].newRating]);
+        if(sortedScores.length > 0) {
+	    setYLimit([sortedScores[sortedScores.length-1].newRating, sortedScores[0].newRating]);
+	}
 
         // Generate JSX of line series
         setLines(idList.map((element, index) => {

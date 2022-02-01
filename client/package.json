@@ -16,10 +16,10 @@
     "web-vitals": "^1.1.2"
   },
   "scripts": {
-    "start": "env-cmd -f ../.env react-scripts start",
-    "build": "env-cmd -f ../.env react-scripts build",
-    "test": "env-cmd -f ../.env react-scripts test",
-    "eject": "env-cmd -f ../.env react-scripts eject"
+    "start": "env-cmd -f .env react-scripts start",
+    "build": "env-cmd -f .env react-scripts build",
+    "test": "env-cmd -f .env react-scripts test",
+    "eject": "env-cmd -f .env react-scripts eject"
   },
   "eslintConfig": {
     "extends": [

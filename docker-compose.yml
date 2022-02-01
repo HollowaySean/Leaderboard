@@ -1,0 +1,70 @@
+services:
+
+  # Node.js for backend
+  leaderboard_backend:
+    build: ./server
+    container_name: leaderboard_backend
+    depends_on:
+      - leaderboard_db
+    volumes:
+      - ./logs:/logs
+    environment:
+      PORT: 8080
+      API_PORT: 8081
+      DB_HOST: leaderboard_db
+      DB_USER: admin
+      DB_PASS: password
+      DB_NAME: leaderboard
+    expose:
+      - "8081"
+    networks:
+      http-external:
+        aliases:
+          - leaderboard_backend
+    restart: unless-stopped
+
+  # MySQL for database
+  leaderboard_db:
+    build: ./database
+    container_name: leaderboard_db
+    volumes:
+      - ./database/db:/var/lib/mysql
+      - ./database/setup:/docker-entrypoint-initdb.d
+    expose:
+      - "3306"
+    networks:
+      http-external:
+        aliases:
+          - leaderboard_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: leaderboard
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: password
+
+  # React.js for front end
+  leaderboard_frontend:
+    build: ./client
+    container_name: leaderboard_frontend
+    environment:
+      PORT: 8080
+      API_PORT: 8081
+      DB_HOST: leaderboard_db
+      DB_USER: admin
+      DB_PASS: password
+      DB_NAME: leaderboard
+    expose:
+      - "8080"
+      - "80"
+    networks:
+      http-external:
+        aliases:
+          - leaderboard_frontend
+    restart: unless-stopped
+    
+
+networks:
+  http-external:
+    external:
+      name: http

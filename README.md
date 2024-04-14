@@ -1,6 +1,14 @@
 # Leaderboard
  Web API for Bayesian skill-estimation leaderboard
 
+### Preface - April '24
+
+Hello! Now that I'm a couple years removed from this project, I just wanted to give a quick summary with the benefit of hindsight.
+
+This project was my introduction to building and deploying a client/server application in Javascript, and ultimately served as a great stepping stone into the world of modern JS. However, now that I have worked professionally as a software engineer for a few years now, it is clear to me that this code is not up to my current standard of cleanliness, readability, or testing. 
+
+I'm still quite proud of how well this project came together for the time, and I do recommend checking out the write-up, so I am keeping it up as a public archive. However, if you are a peer or potential employer, I would refer you to either my other pinned repositories or my professional experience as a better example of my current capabilities.
+
 ## Installation
 
 ### Environmental Variables

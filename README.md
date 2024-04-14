@@ -1,6 +1,8 @@
 # Leaderboard
  Web API for Bayesian skill-estimation leaderboard
 
+ See writeup for more information: [Link to blog post](https://blog.seanholloway.com/2021/09/09/bayesian-skill-tracker-in-express-js-and-react-js/)
+
 ### Preface - April '24
 
 Hello! Now that I'm a couple years removed from this project, I just wanted to give a quick summary with the benefit of hindsight.
